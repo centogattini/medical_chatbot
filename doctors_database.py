@@ -1,5 +1,3 @@
-
-from macpath import split
 import sqlite3
 class Database(): 
     def __init__(self,path):
@@ -12,10 +10,10 @@ class Database():
         if res is None:
             return None
         return res.fetchall()
-   
+
     def set_appointment(self,time,name,date): 
-        #hh:mm:ss -> thhmm
-        time = _format_time(time)
+        #hh:mm:ss -> thhmm   
+        time = format_time(time)
 
         try:
             self.cur.execute(f'UPDATE timetable AS T SET T.{time} = 1 WHERE T.name = "{name}" AND T.date = "{date}"')
@@ -25,11 +23,20 @@ class Database():
 
     def get_all_doctors(self,):
         #set всех фио
-        res = self.cur.execute(f'SELECT DISTINCT T.profession, T.name FROM {self.timetable}')
-        return set(res.fetchall())
+        res = self.cur.execute(f'SELECT DISTINCT profession, name FROM {self.timetable}')
+        res = set(res.fetchall())
+        return res
 
-    @staticmethod
-    def _format_time(time):
+
+    def get_all_professions(self,):
+        #set всех профессий 
+        res = self.cur.execute(f'SELECT DISTINCT profession FROM {self.timetable}')
+        res = set(res.fetchall())
+        return res
+
+    
+    @staticmethod 
+    def format_time(time):
         elems = time.split(":")
 
         #Если количество часов 09, то оставляем 9 
@@ -42,8 +49,3 @@ class Database():
             res = "t{0}{1}".format(elems[0], elems[1])
 
         return res
-
-    def get_all_professions(self,):
-        #set всех профессий 
-        res = self.cur.execute(f'SELECT DISTINCT profession FROM {self.timetable}')
-        return set(res.fetchall())
