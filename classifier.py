@@ -1,3 +1,4 @@
+from calendar import c
 from pymorphy2 import MorphAnalyzer
 from nltk import ngrams
 from collections import List
@@ -5,7 +6,7 @@ import re
 import os
 from consts import CONST
 class Classifier():
-    def __init__(self,doctors:List[str]):
+    def __init__(self, doctors:List[str]):
         self.doctors = doctors
         pass
     def classify_symptoms(self, ans)->str:
@@ -55,7 +56,37 @@ class Classifier():
             return 'терапевт'#unknown sympotms
     
     def identify_name_or_profession(self,name):
+        
+        ans_name = None
+        ans_prof = None
+        doctor_names = []
+        prof = []
+        morph = MorphAnalyzer()
+        name = re.sub('\\n', ' ', name)
+        name = re.sub('[,!.?]', '', name)
+        name = name.split()
+        for i in range(len(name)):
+            name[i] = morph.parse(name[i])[0].normal_form
+        trigrams = ngrams(name, 3)
+
+        for i in name:
+            if i in prof:
+                ans_prof = i
+                break
+        
+        for i in trigrams:
+            if i in doctor_names:
+                ans_name = i
+        
+        if ans_name:
+            tag = CONST.name
+            return (ans_name,tag)
+        elif ans_prof:
+            tag = CONST.profession
+            return (ans_prof,tag)
+        else:
+            tag = CONST.error
+            return('',tag)
         # return tuple (str, tag)
         # str:string -- name or profession
         # tag: CONST variable
-        pass
