@@ -6,17 +6,17 @@ class Database():
         self.cur = self.con.cursor()
     
     def get_avaliable_time(self,profession,date):
-        res = self.cur.execute(f'SELECT * FROM {self.timetable} AS T WHERE T.date = "{date}" and T.profession = "{profession}"')
+        res = self.cur.execute(f'SELECT * FROM {self.table_name} AS T WHERE T.date = "{date}" and T.profession = "{profession}"')
         if res is None:
             return None
         return res.fetchall()
 
-    def set_appointment(self,time,name,date): 
+    def set_appointment(self, time, name, date): 
         #hh:mm:ss -> thhmm   
-        time = format_time(time)
+        time = Database.format_time(time)
 
         try:
-            self.cur.execute(f'UPDATE timetable AS T SET T.{time} = 1 WHERE T.name = "{name}" AND T.date = "{date}"')
+            self.cur.execute(f'UPDATE {self.table_name} AS T SET T.{time} = 1 WHERE T.name = {name} AND T.date = {date}')
             return 0
         except:
             return 1
@@ -34,8 +34,8 @@ class Database():
         res = set(res.fetchall())
         return res
 
-    
-    @staticmethod 
+
+    @staticmethod
     def format_time(time):
         elems = time.split(":")
 
