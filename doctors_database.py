@@ -1,12 +1,18 @@
 import sqlite3
-class Database(): 
+class Database():
+
+
     def __init__(self,path):
         self.table_name = 'timetable'
         self.con = sqlite3.connect(path)
         self.cur = self.con.cursor()
     
     def get_avaliable_time(self,name,date):
-        res = self.cur.execute(f'SELECT * FROM {self.table_name} AS T WHERE T.date = "{date}" and T.name = "{name}"')
+        res = self.cur.execute(f'SELECT\
+            t9, t930, t10, t1030, t11, t1130, t12, t1230, t13, t1330, \
+            t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830 \
+            FROM {self.table_name} \
+            AS T WHERE T.date = "{date}" and T.name = "{name}"')
         if res is None:
             return None
         return res.fetchall()
