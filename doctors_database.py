@@ -5,8 +5,8 @@ class Database():
         self.con = sqlite3.connect(path)
         self.cur = self.con.cursor()
     
-    def get_avaliable_time(self,profession,date):
-        res = self.cur.execute(f'SELECT * FROM {self.table_name} AS T WHERE T.date = "{date}" and T.profession = "{profession}"')
+    def get_avaliable_time(self,name,date):
+        res = self.cur.execute(f'SELECT * FROM {self.table_name} AS T WHERE T.date = "{date}" and T.name = "{name}"')
         if res is None:
             return None
         return res.fetchall()
