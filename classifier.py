@@ -22,7 +22,7 @@ class Classifier():
         for i in range(len(ans)):
             ans[i] = morph.parse(ans[i])[0].normal_form
         #создание триграм, биграм
-
+        #apfkeowkwoep
         trigrams = ngrams(ans, 3)
         merged_trigrams = []
         for gram in trigrams:
