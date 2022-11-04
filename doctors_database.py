@@ -1,4 +1,11 @@
 import sqlite3
+from datetime import datetime
+
+#Текущая дата
+curYear = datetime.now().year
+curMonth = datetime.now().month
+curDay = datetime.now().day
+
 class Database():
 
 
@@ -11,16 +18,27 @@ class Database():
     def get_available_time(self,name,date):
         res = self.cur.execute(f'SELECT\
             t9, t930, t10, t1030, t11, t1130, t12, t1230, t13, t1330, \
-            t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830 \
+            t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
             FROM {self.table_name} \
             AS T WHERE T.date = "{date}" and T.name = "{name}"')
         if res is None:
             return None
-        return res.fetchall()
+        return res.fetchall()[0]
 
     #возращает свободные даты по имени на неделю
-    def get_available_date(self, name):
-        res = self.cur.execute(f'SELECT date FROM timetable WHERE name = "{name}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0)')
+    def get_date_by_name(self, name):
+        #добавить от сегодняшнего дня, а не от момента создания таблицы и order by
+        res = self.cur.execute(f'SELECT date FROM timetable WHERE date >= DATE("now") name = "{name}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0 OR t19 OR t1930) ORDER BY date ASC')
+        res = res.fetchmany(7)
+        dates = []
+        for i in res:
+            dates.append(i[0])
+
+        return dates
+
+    #возращает свободные даты и имена врачей по профессии на ближайшую неделю
+    def get_date_by_profession(self, profession):
+        res = self.cur.execute(f'SELECT date, name FROM timetable WHERE date >= DATE("now") AND profession = "{profession}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0 OR t19 OR t1930) ORDER BY date ASC')
         res = res.fetchmany(7)
         dates = []
         for i in res:
