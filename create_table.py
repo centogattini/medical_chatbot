@@ -1,35 +1,28 @@
 import calendar, datetime, sqlite3, json
 
 if __name__ == '__main__':
-    #Создание таблицы с симтомами
-    symp = open('symptoms.json')
+    #Соединение с базой данных
+    con = sqlite3.connect('database.db')
+    cur = con.cursor()
+
+    #Создание таблицы с симптомами
+    symp = open('data/symptoms.json')
     symp = json.load(symp)
 
-    con_symp = sqlite3.connect('database.db')
-    cur_symp = con_symp.cursor()
-
-    cur_symp.execute(f'CREATE TABLE symptoms(profession VARCHAR(255), symptom VARCHAR(255))')
-    con_symp.commit()
+    cur.execute(f'CREATE TABLE symptoms(profession VARCHAR(255), symptom VARCHAR(255))')
+    con.commit()
 
     for key in symp.keys():
         for value in symp[f"{key}"]:
-            cur_symp.execute(f'INSERT INTO symptoms VALUES("{key}", "{value}")')
-            con_symp.commit()
+            cur.execute(f'INSERT INTO symptoms VALUES("{key}", "{value}")')
+            con.commit()
 
     #______________________________________________
-
-    #Создание таблицы с информацией о записи пациентов
-    con_rec = sqlite3.connect('database.db')
-    cur_rec = con_rec.cursor()
-
-    #Создаем таблицу (ФИО пациента, его номер, дата записи, время записи, ФИО врача)
-    cur_rec.execute(f'CREATE TABLE records(name VARCHAR(255), phone VARCHAR(255), date DATE, time TIME, doc_name VARCHAR(255))')
-    con_rec.commit()
+    #Создаем таблицу с информацией о пациенте (ФИО пациента, его номер, дата записи, время записи, ФИО врача)
+    cur.execute(f'CREATE TABLE records(name VARCHAR(255), phone VARCHAR(255), date DATE, time TIME, doc_name VARCHAR(255))')
+    con.commit()
     #______________________________________________
-
     #Создаем основную таблицу
-    con = sqlite3.connect('database.db')
-    cur = con.cursor()
 
     #Формируем столбцы временных окон
     time_var = ''
