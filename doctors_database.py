@@ -1,25 +1,23 @@
-import sqlite3
-from datetime import datetime
+import sqlite3, datetime
+
 
 #Текущая дата
-curYear = datetime.now().year
-curMonth = datetime.now().month
-curDay = datetime.now().day
+curYear = datetime.datetime.now().year
+curMonth = datetime.datetime.now().month
+curDay = datetime.datetime.now().day
 
 class Database():
 
-
-    def __init__(self,path):
-        self.table_name = 'timetable'
+    def __init__(self, path):
         self.con = sqlite3.connect(path)
         self.cur = self.con.cursor()
     
     #Получить время по имени и дате
-    def get_available_time(self,name,date):
+    def get_available_time(self, name, date):
         res = self.cur.execute(f'SELECT\
             t9, t930, t10, t1030, t11, t1130, t12, t1230, t13, t1330, \
             t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
-            FROM {self.table_name} \
+            FROM timetable \
             AS T WHERE T.date = "{date}" and T.name = "{name}"')
         if res is None:
             return None
@@ -46,30 +44,55 @@ class Database():
 
         return dates
 
-
     #Произвести запись в расписание 
     def set_appointment(self, time, name, date): 
         #hh:mm:ss -> thhmm   
         time = Database.format_time(time)
 
         try:
-            self.cur.execute(f'UPDATE {self.table_name} AS T SET T.{time} = 1 WHERE T.name = {name} AND T.date = {date}')
+            self.cur.execute(f'UPDATE timetable AS T SET T.{time} = 1 WHERE T.name = {name} AND T.date = {date}')
             return 0
         except:
             return 1
 
     #Получить имена всех врачей
-    def get_all_doctors(self,):
-        res = self.cur.execute(f'SELECT DISTINCT profession, name FROM {self.timetable}')
+    def get_all_doctors(self):
+        res = self.cur.execute(f'SELECT DISTINCT profession, name FROM timetable')
         res = set(res.fetchall())
         return res
 
-    #Получить все профессии врачей
-    def get_all_professions(self,):
-        #set всех профессий 
-        res = self.cur.execute(f'SELECT DISTINCT profession FROM {self.timetable}')
+    #Получить множество всех профессии врачей
+    def get_all_professions(self):
+        res = self.cur.execute(f'SELECT DISTINCT profession FROM timetable')
         res = set(res.fetchall())
         return res
+
+    #Получить словарь вида {врач:симптомы}
+    def get_symps(self):
+
+        professions = self.cur.execute('SELECT DISTINCT profession FROM symptoms') 
+        lst_docs = []
+        lst_symps = []
+        for doc in professions.fetchall():
+            lst_docs.append(doc[0])
+            
+            lst_symps.append([])
+            symps = self.cur.execute(f'SELECT DISTINCT symptom FROM symptoms WHERE profession = "{doc[0]}"')
+            for symp in symps.fetchall():
+                lst_symps[-1].append(symp[0])
+
+        res = dict(zip(lst_docs, lst_symps))
+
+        return res
+
+    #Записать информацию о пациенте в таблицу records
+    def record_inf(self, name, phone, date, time, doc_name):
+
+        date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        time = datetime.datetime.strptime(time, '%H:%M').time()
+
+        self.cur.execute(f'INSERT INTO records VALUES("{name}", "{phone}", "{date}", "{time}", "{doc_name}")')
+        self.con.commit()
 
 
     @staticmethod
