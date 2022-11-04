@@ -78,8 +78,11 @@ class Dialoger:
         self.io.write('Выберите специалиста')
         ans = self.io.read()
         return ans
+    def __format_times(self,times):
+        pass
     # output timetable for a week
     def out_week(self,ans):
+        times = self.db.get_avaliable_time(ans)
         pass
     # ask a person to choose a date (from the given weekend)
     def ask_choose_date(self,ans):
