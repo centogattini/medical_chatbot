@@ -1,5 +1,5 @@
 import calendar
-from datetime import datetime
+import datetime
 import sqlite3
 
 if __name__ == '__main__':
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     time_var+=("t19 BOOL, t1930 BOOL")
 
     #Создаем таблицу
-    cur.execute('CREATE TABLE timetable(profession VARCHAR(255), name VARCHAR(255), date DATE, {})'.format(time_var))
+    cur.execute(f'CREATE TABLE timetable(profession VARCHAR(255), name VARCHAR(255), date DATE, {time_var})')
     con.commit()
 
 
@@ -39,9 +39,9 @@ if __name__ == '__main__':
     my_calendar = calendar.Calendar(firstweekday=0)
 
     #Текущая дата
-    curYear = datetime.now().year
-    curMonth = datetime.now().month
-    curDay = datetime.now().day
+    curYear = datetime.datetime.now().year
+    curMonth = datetime.datetime.now().month
+    curDay = datetime.datetime.now().day
 
     recording = [] 
     delta_time = 3 
@@ -84,8 +84,10 @@ if __name__ == '__main__':
         dates_ther = sorted(Monday + Wednesday + Friday)
         time_ther = fill_time(9, 16)
 
+
         for d in dates_ther:
-            cur.execute('INSERT INTO timetable VALUES("Терапевт", "Айболит Сергей Сергеевич", "{0}-{1}-{2}", {3})'.format(year, month, str(d), time_ther))
+            date = str(datetime.date(year, month, d))
+            cur.execute(f'INSERT INTO timetable VALUES("Терапевт", "Айболит Сергей Сергеевич", "{date}", {time_ther})')
         con.commit()
 
 
@@ -95,7 +97,8 @@ if __name__ == '__main__':
         time_surg = fill_time(10, 14)
 
         for d in dates_surg:
-            cur.execute('INSERT INTO timetable VALUES("Хирург", "Резник Максим Владимирович", "{0}-{1}-{2}", {3})'.format(year, month, str(d), time_surg))
+            date = str(datetime.date(year, month, d))
+            cur.execute(f'INSERT INTO timetable VALUES("Хирург", "Резник Максим Владимирович", "{date}", {time_surg})')
         con.commit()
 
 
@@ -105,7 +108,8 @@ if __name__ == '__main__':
         time_gastr = fill_time(14, 20)
 
         for d in dates_gastr:
-            cur.execute('INSERT INTO timetable VALUES("Гастроэнтеролог", "Пузикова Лидия Васильевна", "{0}-{1}-{2}", {3})'.format(year, month, str(d), time_gastr))
+            date = str(datetime.date(year, month, d))
+            cur.execute(f'INSERT INTO timetable VALUES("Гастроэнтеролог", "Пузикова Лидия Васильевна", "{date}", {time_gastr})')
         con.commit()
 
         #Кардиолог
@@ -114,7 +118,8 @@ if __name__ == '__main__':
         time_card = fill_time(15, 19) 
 
         for d in dates_card:
-            cur.execute('INSERT INTO timetable VALUES("Кардиолог", "Ишемитов Марат Ренатович", "{0}-{1}-{2}", {3})'.format(year, month, str(d), time_card))
+            date = str(datetime.date(year, month, d))
+            cur.execute(f'INSERT INTO timetable VALUES("Кардиолог", "Ишемитов Марат Ренатович", "{date}", {time_card})')
         con.commit()
 
         month+=1
