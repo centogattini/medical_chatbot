@@ -1,4 +1,3 @@
-from calendar import c
 from pymorphy2 import MorphAnalyzer
 from nltk import ngrams
 from typing import List
