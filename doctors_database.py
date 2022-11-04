@@ -1,5 +1,6 @@
 import sqlite3, datetime
 
+#!!!Исправить неправильный вывод дат
 
 #Текущая дата
 curYear = datetime.datetime.now().year
@@ -23,21 +24,21 @@ class Database():
             return None
         return res.fetchall()[0]
 
-    #возращает свободные даты по имени на неделю
+    #Возращает свободные даты по имени на неделю
     def get_date_by_name(self, name):
         #добавить от сегодняшнего дня, а не от момента создания таблицы и order by
         res = self.cur.execute(f'SELECT date FROM timetable WHERE date >= DATE("now") name = "{name}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0 OR t19 OR t1930) ORDER BY date ASC')
-        res = res.fetchmany(7)
+        res = res.fetchall()
         dates = []
         for i in res:
             dates.append(i[0])
 
         return dates
 
-    #возращает свободные даты и имена врачей по профессии на ближайшую неделю
+    #возращает свободные даты на ближайшую неделю
     def get_date_by_profession(self, profession):
         res = self.cur.execute(f'SELECT date, name FROM timetable WHERE date >= DATE("now") AND profession = "{profession}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0 OR t19 OR t1930) ORDER BY date ASC')
-        res = res.fetchmany(7)
+        res = res.fetchall()
         dates = []
         for i in res:
             dates.append(i[0])
@@ -69,7 +70,7 @@ class Database():
     #Получить множество всех профессии врачей 
     def get_all_professions(self)->set:
         res = self.cur.execute(f'SELECT DISTINCT profession FROM timetable')
-        res = set(res.fetchall())
+        res = set(r[0] for r in res.fetchall())
         return res
 
     #Получить словарь вида {врач:симптомы}
@@ -87,7 +88,6 @@ class Database():
                 lst_symps[-1].append(symp[0])
 
         res = dict(zip(lst_docs, lst_symps))
-
         return res
 
     #Записать информацию о пациенте в таблицу records

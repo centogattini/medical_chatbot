@@ -2,7 +2,7 @@ import calendar, datetime, sqlite3, json
 
 if __name__ == '__main__':
     #Соединение с базой данных
-    con = sqlite3.connect('database.db')
+    con = sqlite3.connect('data/database.db')
     cur = con.cursor()
 
     #Создание таблицы с симптомами
