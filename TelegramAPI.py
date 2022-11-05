@@ -1,14 +1,13 @@
 import telebot
 from telebot import types
-from classifier import Classifier
-
 
 class TelegramBot:
-	def __init__(self, TOKEN, created_classifier, database):
+	def __init__(self, token, clf, db, N=12):
 		telebot.apihelper.ENABLE_MIDDLEWARE = True
-		self.bot = telebot.TeleBot(TOKEN)
-		self.classifier = created_classifier
-		self.database = self.database
+		self.bot = telebot.TeleBot(token)
+		self.classifier = clf
+		self.database = db
+		self.N = N
 
 	def dialog(self):
 		@self.bot.message_handler(commands=['start'])
