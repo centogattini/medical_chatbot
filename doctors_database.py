@@ -1,7 +1,5 @@
 import sqlite3, datetime, utils
 
-#!!!Исправить неправильный вывод дат
-
 #Текущая дата
 curYear = datetime.datetime.now().year
 curMonth = datetime.datetime.now().month
@@ -79,7 +77,6 @@ class Database():
 
     #Получить словарь вида {врач:симптомы}
     def get_symps_dict(self):
-
         professions = self.cur.execute('SELECT DISTINCT profession FROM symptoms') 
         lst_docs = []
         lst_symps = []
@@ -96,31 +93,11 @@ class Database():
 
     #Записать информацию о пациенте в таблицу records
     def record_inf(self, name, phone, date, time, doc_name):
-
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         time = datetime.datetime.strptime(time, '%H:%M').time()
 
         self.cur.execute(f'INSERT INTO records VALUES("{name}", "{phone}", "{date}", "{time}", "{doc_name}")')
         self.con.commit()
-
-    #Преобразуем кортеж (1, 0, ...) свободного времени в лист вида [9:00, 9:30, ..]
-    def time_to_text(time):
-        res = []
-        h = '9'
-        m = '00'
-        for i in time:
-            cur_time = h + ":" + m
-            if m == '00':
-                m = '30'
-            else:
-                h = str(int(h)+1)
-                m = '00'
-
-            if i == 0:
-                res.append(cur_time)
-
-        return res
-
 
     @staticmethod
     def format_time(time):
