@@ -1,4 +1,8 @@
 *.ipynb
 .DS_Store
 .ipynb*
+<<<<<<< HEAD
 __pycache__/
+=======
+__pycache__/
+>>>>>>> 7442484d64bd79e01359cde64fe4f948ad06009d
