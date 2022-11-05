@@ -36,15 +36,42 @@ class Database():
 
         return dates
 
-    #возращает все свободные даты по профессии в формате YYYY-MM-DD
+    #Возращает все свободные даты по профессии в формате YYYY-MM-DD
     def get_date_by_profession(self, profession):
-        res = self.cur.execute(f'SELECT date, name FROM timetable WHERE date >= DATE("now") AND profession = "{profession}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0 OR t19 OR t1930) ORDER BY date ASC')
+        res = self.cur.execute(f'SELECT DISTINCT date FROM timetable WHERE date >= DATE("now") AND profession = "{profession}" AND (t9 = 0 OR t930 = 0 OR t10 = 0 OR t1030 = 0 OR t11 = 0 OR t1130 = 0 OR t12 = 0 OR t1230 = 0 OR t13 = 0 OR t1330 = 0 OR t14 = 0 OR t1430 = 0 OR t15 = 0 OR t1530 = 0 OR t16 = 0 OR t1630 = 0 OR t17 = 0 OR t1730 = 0 OR t18 = 0 OR t1830 = 0 OR t19 OR t1930) ORDER BY date ASC')
         res = res.fetchall()
         dates = []
         for i in res:
             dates.append(i[0])
 
         return dates
+
+    #Возвращает все свободные талоны на дату для всех врачей данной профессии
+    def get_time_by_profession(self, date, profession):
+        res = self.cur.execute(f'SELECT\
+            t9, t930, t10, t1030, t11, t1130, t12, t1230, t13, t1330, \
+            t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
+            FROM timetable \
+            AS T WHERE T.date = "{date}" AND T.profession = "{profession}"')
+
+        res = utils.time_to_text(res.fetchall()[0])
+        if res is None:
+            return None
+        return res
+
+    #Возвращает всех доступных врачей данной профессии по дате и времени
+    def get_all_docs_by_datetime(self, profession, date, time):
+        #Преобразуем время вида 9:30 к названию столбца вида t930 
+        if time[-2:] != '00':
+            time = 't' + time[:-3] + time[-2:]
+        else:
+            time = 't' + time[:-3]
+
+        res = self.cur.execute(f'SELECT name FROM timetable AS T \
+            WHERE T.profession = "{profession}" AND T.date = "{date}" AND T.{time} = 0')
+
+        return [doc[0] for doc in res.fetchall()]
+
 
     #Произвести запись в расписание 
     def set_appointment(self, time, name, date): 
@@ -100,6 +127,7 @@ class Database():
         self.con.commit()
 
     @staticmethod
+    #hh:mm:ss -> thhmm 
     def format_time(time):
         elems = time.split(":")
         #Если количество часов 09, то оставляем 9 
