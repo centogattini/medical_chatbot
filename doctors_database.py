@@ -48,34 +48,39 @@ class Database():
     def set_appointment(self, time, name, date): 
         #hh:mm:ss -> thhmm   
         time = Database.format_time(time)
-
         try:
             self.cur.execute(f'UPDATE timetable AS T SET T.{time} = 1 WHERE T.name = {name} AND T.date = {date}')
             return 0
         except:
             return 1
 
-    #Получить имена всех врачей
-    def get_all_doctors(self):
+    #Получить всех врачей
+    def get_all_doc_n_names(self)->set:
         res = self.cur.execute(f'SELECT DISTINCT profession, name FROM timetable')
-        res = set(res.fetchall())
+        res = set([r for r in res.fetchall()])
         return res
 
-    #Получить множество всех профессии врачей
-    def get_all_professions(self):
+    #Получить имена всех врачей
+    def get_all_names(self)->set:
+        res = self.cur.execute(f'SELECT DISTINCT name FROM timetable')
+        res = set([r[0] for r in res.fetchall()])
+        return res
+
+    #Получить множество всех профессии врачей 
+    def get_all_professions(self)->set:
         res = self.cur.execute(f'SELECT DISTINCT profession FROM timetable')
         res = set(res.fetchall())
         return res
 
     #Получить словарь вида {врач:симптомы}
-    def get_symps(self):
+    def get_symps_dict(self):
 
         professions = self.cur.execute('SELECT DISTINCT profession FROM symptoms') 
         lst_docs = []
         lst_symps = []
+
         for doc in professions.fetchall():
             lst_docs.append(doc[0])
-            
             lst_symps.append([])
             symps = self.cur.execute(f'SELECT DISTINCT symptom FROM symptoms WHERE profession = "{doc[0]}"')
             for symp in symps.fetchall():
