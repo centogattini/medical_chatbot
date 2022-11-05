@@ -1,14 +1,19 @@
 import calendar, datetime, sqlite3, json
 
 if __name__ == '__main__':
+    PATH_SYMPTOMS = 'data/symptoms.json'
     #Соединение с базой данных
     con = sqlite3.connect('database.db')
     cur = con.cursor()
 
     #Создание таблицы с симптомами
-    symp = open('data/symptoms.json')
-    symp = json.load(symp)
-
+    try:
+        with open(PATH_SYMPTOMS, encoding='utf-8') as f:
+            symp = json.load(f)
+    except FileNotFoundError:
+        print(f'symptoms.json not found in {PATH_SYMPTOMS}')
+        raise FileNotFoundError
+        
     cur.execute(f'CREATE TABLE symptoms(profession VARCHAR(255), symptom VARCHAR(255))')
     con.commit()
 
@@ -16,7 +21,6 @@ if __name__ == '__main__':
         for value in symp[f"{key}"]:
             cur.execute(f'INSERT INTO symptoms VALUES("{key}", "{value}")')
             con.commit()
-
     #______________________________________________
     #Создаем таблицу с информацией о пациенте (ФИО пациента, его номер, дата записи, время записи, ФИО врача)
     cur.execute(f'CREATE TABLE records(name VARCHAR(255), phone VARCHAR(255), date DATE, time TIME, doc_name VARCHAR(255))')
@@ -71,20 +75,16 @@ if __name__ == '__main__':
             month%=12
             year+=1
 
-
         days = []
         for i in range(7):
             days.append([])
-
         
         for date in my_calendar.monthdayscalendar(year, month):
             for i in range(7):
                 if date[i] != 0 and (date[i] >= curDay or month > curMonth or year > curYear):
                     days[i].append(date[i])
             
-        
         recording.append(days)
-
 
         #Разбиваем все дни месяца по дням недели
         Monday = recording[-1][0]
@@ -100,12 +100,10 @@ if __name__ == '__main__':
         dates_ther = sorted(Monday + Wednesday + Friday)
         time_ther = fill_time(9, 16)
 
-
         for d in dates_ther:
             date = str(datetime.date(year, month, d))
             cur.execute(f'INSERT INTO timetable VALUES("Терапевт", "Айболит Сергей Сергеевич", "{date}", {time_ther})')
         con.commit()
-
 
         #Хирург
         #____________________________________________________
@@ -116,7 +114,6 @@ if __name__ == '__main__':
             date = str(datetime.date(year, month, d))
             cur.execute(f'INSERT INTO timetable VALUES("Хирург", "Резник Максим Владимирович", "{date}", {time_surg})')
         con.commit()
-
 
         #Гастроэнтеролог
         #____________________________________________________
@@ -138,4 +135,4 @@ if __name__ == '__main__':
             cur.execute(f'INSERT INTO timetable VALUES("Кардиолог", "Ишемитов Марат Ренатович", "{date}", {time_card})')
         con.commit()
         
-        month+=1
+        month += 1
