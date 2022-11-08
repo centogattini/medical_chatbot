@@ -19,17 +19,16 @@ class Classifier():
         self.doctors_and_symps = doctors_and_symsps
         for key, val in self.doctors_and_symps.items():
             self.doctors_and_symps[key] = Classifier.normalize_text(val,tokenizied=True)
-        print(self.doctors_and_symps)
+
         self.doctors_profs = list(self.doctors_and_symps.keys())
         self.doctors_name = doctors_names
 
     def classify_symptoms(self, text) -> str:
-
+        
         # обработка входной строки, разбиение, удаление перехода на новую строку
         # удаление знаков препинания
         tokens = Classifier.normalize_text(text)
-
-        # создание триграм, биграм
+        # создание n-gram
         trigrams = ngrams(tokens, 3)
         merged_trigrams = []
 
@@ -43,7 +42,6 @@ class Classifier():
 
         # обрабатываем все н-грамы, проверяем входение соответсвующих симптомов по врачам
         all_grams = tokens + merged_bigrams + merged_trigrams
-        print(all_grams)
         # вспомогательный словарь для записи количества симптомов по врачам
         doc_count = dict()
         for prof in self.doctors_profs:
@@ -61,9 +59,9 @@ class Classifier():
                 clf_doctors.append(k)
         # если их несколько, просим обратиться к терапевту
         if len(clf_doctors) == 1:
-            return clf_doctors[0]  # all is good
+            return clf_doctors[0], CONST.profession  # all is good
         else:
-            return 'терапевт'  # unknown sympotms
+            return 'терапевт', CONST.error  # unknown sympotms
 
     def identify_name_or_profession(self, text):
         ans_name, ans_prof = None, None
@@ -79,12 +77,13 @@ class Classifier():
 
         nicknames = dict()
         for full_name in self.doctors_name:
-            nt = Classifier.normalize_text(full_name)
+            nt = full_name.lower().split()
             nicknames[nt[0]] = full_name
             nicknames[' '.join(nt[1:])] = full_name
 
         for w in all_grams:
-            if w in nicknames:
+            print(w)
+            if w in nicknames or w[:-1] in nicknames:
                 ans_name = nicknames[w]
                 break
         

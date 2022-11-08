@@ -5,7 +5,6 @@ from TelegramAPI import TelegramBot
 # from dialoger import Dialoger
 def main():
     PATH_DATABASE = 'data/database.db'
-    PATH_SYMPTOMS = 'data/symptoms.json'
     BOT_TOKEN = input("please, write bot token:")
     
     db = Database(PATH_DATABASE)
