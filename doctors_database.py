@@ -22,10 +22,10 @@ class Database():
             FROM timetable \
             AS T WHERE T.date = "{date}" AND T.name = "{name}"')
 
-        res = utils.time_to_text(res.fetchall()[0])
-
         if res is None:
             return None
+
+        res = utils.time_to_text(res.fetchall()[0])
         return res
 
     #Возращает все свободные даты по имени в формате YYYY-MM-DD
@@ -90,12 +90,13 @@ class Database():
         cur = con.cursor()
         #hh:mm:ss -> thhmm   
         time = Database.format_time(time)
+
         try:
-            cur.execute(f'UPDATE timetable AS T SET T.{time} = 1 WHERE T.name = {name} AND T.date = {date}')
+            cur.execute(f'UPDATE timetable AS T SET "{time}" = 1 WHERE T.name = "{name}" AND T.date = "{date}"')
             con.commit()
             return 0
         except:
-            return 1
+            return print("Ошибка записи!")
 
     #Получить множество всех врачей с именами
     def get_all_doc_n_names(self)->set:
