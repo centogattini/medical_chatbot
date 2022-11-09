@@ -65,9 +65,15 @@ class Database():
             AS T WHERE T.date = "{date}" AND T.profession = "{profession}"')
         if not res:
             return None
-        res = utils.time_to_text(res.fetchall()[0])
+        ans = []
+        for t in(res.fetchall()):
+            ans += utils.time_to_text(t)
         
-        return res
+        ans = list(set(ans))
+        ans_3 = sorted([x for x in ans if len(x) == 4])
+        ans_4 = sorted([x for x in ans if len(x) == 5])
+        
+        return ans_3 + ans_4
 
     #Возвращает всех доступных врачей данной профессии по дате и времени
     def get_all_docs_by_datetime(self, profession, date, time):
@@ -107,7 +113,7 @@ class Database():
         res = cur.execute(f'SELECT DISTINCT profession, name FROM timetable')
         res = set([r for r in res.fetchall()])
         return res
-
+    
     #Получить множество имен всех врачей
     def get_all_names(self)->set:
         con = sqlite3.connect(self.path)
