@@ -1,4 +1,7 @@
-import calendar, datetime, sqlite3, json
+import calendar
+import datetime
+import sqlite3
+import json
 
 if __name__ == '__main__':
     PATH_SYMPTOMS = 'data/symptoms.json'

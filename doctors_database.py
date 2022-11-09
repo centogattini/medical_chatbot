@@ -13,7 +13,7 @@ class Database():
         cur = con.cursor()
     
     #Получить время на выбранную дату по имени врача
-    def get_available_time(self, name, date):
+    def available_time(self, name, date):
         con = sqlite3.connect(self.path)
         cur = con.cursor()
         res = cur.execute(f'SELECT\
@@ -62,6 +62,7 @@ class Database():
             t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
             FROM timetable \
             AS T WHERE T.date = "{date}" AND T.profession = "{profession}"')
+        print(res.fetchall())
         if not res:
             return None
         res = utils.time_to_text(res.fetchall()[0])
