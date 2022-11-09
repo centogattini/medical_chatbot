@@ -148,6 +148,8 @@ class Database():
         cur = con.cursor()
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         time = datetime.datetime.strptime(time, '%H:%M').time()
+        
+        self.set_appointment(time, name, date)
 
         cur.execute(f'INSERT INTO records VALUES("{name}", "{phone}", "{date}", "{time}", "{doc_name}")')
         con.commit()
