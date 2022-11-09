@@ -9,6 +9,7 @@ if __name__ == '__main__':
     con = sqlite3.connect('data/database.db')
     cur = con.cursor()
 
+
     #Создание таблицы с симптомами
     try:
         with open(PATH_SYMPTOMS, encoding='utf-8') as f:
