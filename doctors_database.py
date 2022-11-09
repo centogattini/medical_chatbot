@@ -22,7 +22,7 @@ class Database():
             FROM timetable \
             AS T WHERE T.date = "{date}" AND T.name = "{name}"')
 
-        if res is None:
+        if not res:
             return None
 
         res = utils.time_to_text(res.fetchall()[0])
@@ -62,10 +62,10 @@ class Database():
             t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
             FROM timetable \
             AS T WHERE T.date = "{date}" AND T.profession = "{profession}"')
-
-        res = utils.time_to_text(res.fetchall()[0])
-        if res is None:
+        if not res:
             return None
+        res = utils.time_to_text(res.fetchall()[0])
+        
         return res
 
     #Возвращает всех доступных врачей данной профессии по дате и времени

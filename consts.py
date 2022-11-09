@@ -1,5 +1,5 @@
 class CONST:
-    profession = 'profession'
+    profession = 'prof'
     name = 'name'
     error = 'error'
     yes = 'yes'
