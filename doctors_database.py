@@ -149,7 +149,7 @@ class Database():
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         time = datetime.datetime.strptime(time, '%H:%M').time()
         
-        self.set_appointment(time, name, date)
+        self.set_appointment(time, doc_name, date)
 
         cur.execute(f'INSERT INTO records VALUES("{name}", "{phone}", "{date}", "{time}", "{doc_name}")')
         con.commit()
@@ -157,7 +157,7 @@ class Database():
     @staticmethod
     #hh:mm:ss -> thhmm 
     def format_time(time):
-        elems = time.split(":")
+        elems = str(time).split(":")
         #Если количество часов 09, то оставляем 9 
         if elems[0][0] == '0':
             elems[0] = elems[0][1]
