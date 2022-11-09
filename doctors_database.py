@@ -39,6 +39,7 @@ class Database():
         for i in res:
             dates.append(i[0])
 
+
         return dates
 
     #Возращает все свободные даты по профессии в формате YYYY-MM-DD
@@ -80,6 +81,7 @@ class Database():
 
         res = cur.execute(f'SELECT name FROM timetable AS T \
             WHERE T.profession = "{profession}" AND T.date = "{date}" AND T.{time} = 0')
+
 
         return [doc[0] for doc in res.fetchall()]
 
