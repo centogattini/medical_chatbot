@@ -148,8 +148,17 @@ class TelegramBot:
 			btn1 = types.KeyboardButton(text='Да')
 			btn2 = types.KeyboardButton(text='Нет')
 			keyboard.add(btn1, btn2)
+<<<<<<< HEAD
 			self.bot.send_message(message.from_user.id, " Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться?", reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
+=======
+			professions = db.get_all_professions()
+			prof_str = ''
+			for elem in professions:
+				prof_str += str(elem) + '\n'
+			self.bot.send_message(message.from_user.id, " Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться? Список доступных врачей: \n "+ prof_str, reply_markup=keyboard)
+			self.add_user(message.from_user.id, globals_dict)
+>>>>>>> 0c650c31df664bba15956e0101c54d6ec60f98c0
 			self.bot.register_next_step_handler(message, ask_1)
 
 		#обработка ответа на первое сообщение

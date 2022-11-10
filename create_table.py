@@ -107,7 +107,7 @@ if __name__ == '__main__':
         for d in dates_ther:
             date = str(datetime.date(year, month, d))
             cur.execute(f'INSERT INTO timetable VALUES("Терапевт", "Айболит Сергей Сергеевич", "{date}", {time_ther})')
-            cur.execute(f'INSERT INTO timetable VALUES("Терапевт", "Стас Ай Как Просто", "{date}", {time_ther})')
+            cur.execute(f'INSERT INTO timetable VALUES("Терапевт", "Лечебников Антон Иванович", "{date}", {time_ther})')
         con.commit()
 
 
