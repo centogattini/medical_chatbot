@@ -1,4 +1,4 @@
-import sqlite3, datetime, utils
+    import sqlite3, datetime, utils
 
 #Текущая дата
 curYear = datetime.datetime.now().year
@@ -14,7 +14,7 @@ class Database():
     #Получить время на выбранную дату по имени врача
     def get_available_time(self, name, date):
         res = self.cur.execute(f'SELECT\
-            t9, t930, t10, t1030, t11, t1130, t12, t1230, t13, t1330, \
+            t9, t930,    t10, t1030, t11, t1130, t12, t1230, t13, t1330, \
             t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
             FROM timetable \
             AS T WHERE T.date = "{date}" AND T.name = "{name}"')
