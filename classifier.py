@@ -4,6 +4,7 @@ from typing import List
 import re
 import json
 from consts import CONST
+from Levenshtein import distance 
 
 
 class Classifier():
@@ -18,16 +19,17 @@ class Classifier():
         #     raise 
         self.doctors_and_symps = doctors_and_symsps
         for key, val in self.doctors_and_symps.items():
-            self.doctors_and_symps[key] = Classifier.normalize_text(val,tokenizied=True)
+            self.doctors_and_symps[key] = normalize_text(val,tokenizied=True)
 
         self.doctors_profs = list(self.doctors_and_symps.keys())
         self.doctors_name = doctors_names
+        
 
     def classify_symptoms(self, text) -> str:
         
         # обработка входной строки, разбиение, удаление перехода на новую строку
         # удаление знаков препинания
-        tokens = Classifier.normalize_text(text)
+        tokens = normalize_text(text)
         # создание n-gram
         trigrams = ngrams(tokens, 3)
         merged_trigrams = []
@@ -65,8 +67,8 @@ class Classifier():
 
     def identify_name_or_profession(self, text):
         ans_name, ans_prof = None, None
-        tokens = Classifier.normalize_text(text)
-        
+        tokens = normalize_text(text)
+
         for word in tokens:
             if word in self.doctors_profs:
                 ans_prof = word
@@ -94,32 +96,59 @@ class Classifier():
         else:
             tag = CONST.error
 
+        if tag == CONST.error:
+            min_dist = float('inf')
+            closest = None
+            for w in all_grams:
+                res, d = autocorrection(w, self.doctors_profs)
+                if d < min_dist:
+                    closest = res
+                    min_dist = d
+            if min_dist <= 2:
+                ans_prof = res
+                tag = 'autocorr'
+
         return ans_name or ans_prof, tag
 
         # return tuple (str, tag)
         # str:string -- name or profession
         # tag: CONST variable
     
-    @staticmethod
-    def normalize_text(text, tokenizied=False):
-        morph = MorphAnalyzer()
-        if tokenizied:
-            text = [w.lower() for w in text]
-            text = [re.sub('\\n', ' ', w) for w in text ]
-            text = [re.sub('[,!.?]', '', w) for w in text]
-            for i in range(len(text)):
-                ws = text[i].split()
-                normalized_ws = []
-                for w in ws:
-                    normalized_ws.append(morph.parse(w)[0].normal_form)
-                text[i] = ' '.join(normalized_ws)
-            return text
-
-        text = text.lower()
-        text = re.sub('\\n', ' ', text)
-        text = re.sub('[,!.?]', '', text)
-        text = text.split(' ')
-        ans = []
+def normalize_text(text, tokenizied=False):
+    morph = MorphAnalyzer()
+    if tokenizied:
+        text = [w.lower() for w in text]
+        text = [re.sub('\\n', ' ', w) for w in text ]
+        text = [re.sub('[,!.?]', '', w) for w in text]
         for i in range(len(text)):
-            ans.append(morph.parse(text[i])[0].normal_form)
-        return ans
+            ws = text[i].split()
+            normalized_ws = []
+            for w in ws:
+                normalized_ws.append(morph.parse(w)[0].normal_form)
+            text[i] = ' '.join(normalized_ws)
+        return text
+
+    text = text.lower()
+    text = re.sub('\\n', ' ', text)
+    text = re.sub('[,!.?]', '', text)
+    text = text.split(' ')
+    ans = []
+    for i in range(len(text)):
+        ans.append(morph.parse(text[i])[0].normal_form)
+    return ans
+
+
+def autocorrection(word, dictionary):
+
+    closest = None
+    closest_dist = float('inf')
+
+    for i in range(len(dictionary)):
+        d = distance(word, dictionary[i])
+        if d < closest_dist:
+            closest = dictionary[i]
+            closest_dist = d
+    
+    return closest, closest_dist 
+
+    
