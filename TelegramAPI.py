@@ -53,14 +53,13 @@ class TelegramBot:
 			np_date = get_user_data(message.from_user.id,'np_date')
 			if tag == 'name':
 				dates = db.get_date_by_name(ans)
-
 			else:
 				dates = db.get_date_by_profession(ans.capitalize())
 				
 			page_date = get_user_data(message.from_user.id,'page_date')
 			page_date += np_date
 			set_user_data(message.from_user.id,'page_date',page_date)
-			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width = 2)
+			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width = 2)
 
 			start_date = page_date*N_days
 			curr_date = start_date
@@ -107,12 +106,12 @@ class TelegramBot:
 				times = self.db.get_time_by_profession(message.text, ans.capitalize())
 			elif tag == 'name':
 				times = self.db.get_available_time(ans, message.text)
-			keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
+			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 			start_time = page_time*N_times
 			curr_time = start_time
 
 			while curr_time < start_time + N_times and curr_time < len(times):
-				keyboard.add(types.KeyboardButton(text=str(times[curr_time])))
+				keyboard.add(types.KeyboardButton(text=str(times[curr_time])),)
 				curr_time += 1
 				
 			btn1 = None
@@ -145,12 +144,14 @@ class TelegramBot:
 						'picked_prof':'','user_name':'',
 						'picked_time':'','picked_doc':''}
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
+			btn1 = types.KeyboardButton(text='Да')
+			btn2 = types.KeyboardButton(text='Нет')
 			keyboard.add(btn1, btn2)
 			professions = db.get_all_professions()
 			prof_str = ''
 			for elem in professions:
 				prof_str += str(elem) + '\n'
-			self.bot.send_message(message.from_user.id, " Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться? Список доступных врачей: \n "+ prof_str, reply_markup=keyboard)
+			self.bot.send_message(message.from_user.id, "Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться?\n\nСписок доступных врачей: \n\n"+ prof_str, reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
 
@@ -178,6 +179,10 @@ class TelegramBot:
 		#если человек знает к кому обратиться
 		@self.bot.message_handler(commands=['text'])
 		def ask_2(message):
+			if not type(message.text) is str:
+				self.bot.send_message(message.from_user.id, 
+				f"Мы не распознали ваш запрос. Пожалуйста, напишите имя или профессию врача",reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, ask_2)
 			##обрабатываем входную строку
 			ans, tag = clf.identify_name_or_profession(message.text)
 			set_user_data(message.from_user.id,'tag', tag)
@@ -297,6 +302,15 @@ class TelegramBot:
 			else:
 				tag = get_user_data(message.from_user.id,'tag')
 				ans = get_user_data(message.from_user.id,'ans')
+				if tag == 'prof':
+					dates = db.get_date_by_profession(ans.capitalize())
+				elif tag == 'name':
+					dates = db.get_date_by_name(ans)
+
+				if not message.text in dates:
+					self.bot.send_message(message.from_user.id,"Некорректная дата, выберите еще раз ")
+					print_dates(message)
+					return
 				set_user_data(message.from_user.id,'picked_date', message.text)
 				picked_date = message.text
 				#set_user_data(message.from_user.id,'last_message',None)
