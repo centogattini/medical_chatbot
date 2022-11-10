@@ -361,7 +361,7 @@ class TelegramBot:
 			btn1 = types.KeyboardButton(f'/start')
 			keyboard.add(btn1)
 			self.bot.send_message(message.from_user.id,
-			f'Спасибо за обращение!\n\nВы записаны к врачу\n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {get_user_data(message.from_user.id,"picked_date")}\nВремя приема: {get_user_data(message.from_user.id,"picked_time")}',reply_markup = keyboard)
+			f'Спасибо за обращение!\n\nВы записаны к врачу\n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}',reply_markup = keyboard)
 
 		self.bot.infinity_polling(none_stop=True, interval=1)
 		# class with write and read
