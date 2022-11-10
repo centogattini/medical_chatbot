@@ -146,7 +146,11 @@ class TelegramBot:
 						'picked_time':'','picked_doc':''}
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 			keyboard.add(btn1, btn2)
-			self.bot.send_message(message.from_user.id, " Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться?", reply_markup=keyboard)
+			professions = db.get_all_professions()
+			prof_str = ''
+			for elem in professions:
+				prof_str += str(elem) + '\n'
+			self.bot.send_message(message.from_user.id, " Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться? Список доступных врачей: \n "+ prof_str, reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
 
