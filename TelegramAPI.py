@@ -158,7 +158,7 @@ class TelegramBot:
 			for elem in professions:
 				prof_str += str(elem) + '\n'
 			self.bot.send_message(message.from_user.id, " Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться? Список доступных врачей: \n "+ prof_str, reply_markup=keyboard)
-			self.add_user(message.from_user.id, globals_dict)
+			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
 
 		#обработка ответа на первое сообщение
