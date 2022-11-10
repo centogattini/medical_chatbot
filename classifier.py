@@ -28,6 +28,7 @@ class Classifier():
         # обработка входной строки, разбиение, удаление перехода на новую строку
         # удаление знаков препинания
         tokens = Classifier.normalize_text(text)
+        print('all tokens', tokens)
         # создание n-gram
         trigrams = ngrams(tokens, 3)
         merged_trigrams = []
