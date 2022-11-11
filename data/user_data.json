@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"324927868": {"page_date": 0, "page_time": 0, "np_date": 0, "np_time": 0, "ans": "терапевт", "tag": "prof", "picked_date": "2022-11-11", "picked_prof": "терапевт", "user_name": "Кабанов Степан", "picked_time": "9:00", "picked_doc": "Айболит Сергей Сергеевич"}, "583717169": {"page_date": 0, "page_time": 0, "np_date": 0, "np_time": 0, "ans": "терапевт", "tag": "prof", "picked_date": "ыфва", "picked_prof": "", "user_name": "", "picked_time": "ыва", "picked_doc": ""}}
+=======
+{"324927868": {"page_date": 0, "page_time": 0, "np_date": 0, "np_time": 0, "ans": "Пузикова Лидия Васильевна", "tag": "name", "picked_date": "2022-12-09", "picked_prof": "", "user_name": "", "picked_time": "кек", "picked_doc": "Пузикова Лидия Васильевна"}, "583717169": {"page_date": 0, "page_time": 0, "np_date": 0, "np_time": 0, "ans": "терапевт", "tag": "prof", "picked_date": "2022-11-11", "picked_prof": "", "user_name": "Чукавин Владимир", "picked_time": "10:00", "picked_doc": "Айболит Сергей Сергеевич"}}
+>>>>>>> 07dde391e72ab9261226c0b317a3d7aec64954b3
