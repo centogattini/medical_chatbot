@@ -110,8 +110,10 @@ class Database():
     def get_all_doc_n_names(self)->set:
         con = sqlite3.connect(self.path)
         cur = con.cursor()
-        res = cur.execute(f'SELECT DISTINCT profession, name FROM timetable')
-        res = set([r for r in res.fetchall()])
+        res = cur.execute(f'SELECT DISTINCT profession, name \
+                            FROM timetable \
+                            ORDER BY profession ASC')
+        res = [r for r in res.fetchall()]
         return res
     
     #Получить множество имен всех врачей

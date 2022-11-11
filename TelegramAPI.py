@@ -123,13 +123,13 @@ class TelegramBot:
 			btn3 = types.KeyboardButton(text='возврат к выбору даты')
 
 			if btn1 and btn2:
-				keyboard.row = (btn1, btn2)
+				keyboard.row(btn1, btn2)
 
 			elif btn1:
-				keyboard.row(btn1)
+				keyboard.add(btn1)
 				
 			elif btn2:
-				keyboard.row(btn2)
+				keyboard.add(btn2)
 
 			keyboard.row(btn3)
 			self.bot.send_message(message.from_user.id,'Выберите время для записи', reply_markup=keyboard)
@@ -146,12 +146,11 @@ class TelegramBot:
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 			btn1 = types.KeyboardButton(text='Да')
 			btn2 = types.KeyboardButton(text='Нет')
-			keyboard.add(btn1, btn2)
-			professions = db.get_all_professions()
-			prof_str = ''
-			for elem in professions:
-				prof_str += str(elem) + '\n'
-			self.bot.send_message(message.from_user.id, "Здравствуйте. Это медицинский бот для записи к врачу. Вы знаете к кому обратиться?\n\nСписок доступных врачей: \n\n"+ prof_str, reply_markup=keyboard)
+			btn3 = types.KeyboardButton(text='Посмотреть доступных врачей')
+			keyboard.row(btn1, btn2)
+			keyboard.add(btn3)
+		
+			self.bot.send_message(message.from_user.id, "Здравствуйте. Это медицинский бот для записи к врачу." + "\n\nВы знаете к кому обратиться?", reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
 
@@ -167,6 +166,24 @@ class TelegramBot:
 				self.bot.send_message(message.from_user.id,
 								"Напишите нам имя или профессию врача")
 				self.bot.register_next_step_handler(message, ask_2)
+			elif message.text == "Посмотреть доступных врачей":
+				alldocs = self.db.get_all_doc_n_names()
+				alldocs_str = ''
+				for prof, name in alldocs:
+					alldocs_str += prof + ", " + name + "\n"
+				self.bot.send_message(message.from_user.id,
+								alldocs_str)
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
+
+				btn1 = types.KeyboardButton(text='Да')
+				btn2 = types.KeyboardButton(text='Нет')
+				keyboard.row(btn1, btn2)			
+				self.bot.send_message(message.from_user.id, "Вы знаете к кому обратиться?", reply_markup=keyboard)
+				
+				self.bot.register_next_step_handler(message, ask_1)
+				
+					
+				
 			else:
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 				btn1 = types.KeyboardButton(text='Да')
@@ -228,7 +245,7 @@ class TelegramBot:
 			btn_no = types.KeyboardButton(text="Нет")
 			keyboard.add(btn_yes, btn_no)
 			self.bot.send_message(message.from_user.id, 
-								f"Вы хотите записаться к {ans.capitalize()}y?",reply_markup=keyboard) 
+								f"Вы хотите записаться к {ans}y?",reply_markup=keyboard) 
 								# Может возникнуть проблема с дательным падежом
 			set_user_data(message.from_user.id, 'picked_prof', ans)
 			self.bot.register_next_step_handler(message, ask_5)
