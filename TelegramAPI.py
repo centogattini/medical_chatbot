@@ -102,10 +102,14 @@ class TelegramBot:
 			page_time += np_time
 
 			set_user_data(message.from_user.id,'page_time',page_time)
+			if message.text == 'Изменить время':
+				date = get_user_data(message.from_user.id,'picked_date')
+			else:
+				date = message.text
 			if tag == 'prof':
-				times = self.db.get_time_by_profession(message.text, ans.capitalize())
+				times = self.db.get_time_by_profession(date, ans.capitalize())
 			elif tag == 'name':
-				times = self.db.get_available_time(ans, message.text)
+				times = self.db.get_available_time(ans, date)
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 			start_time = page_time*N_times
 			curr_time = start_time
@@ -139,10 +143,6 @@ class TelegramBot:
 
 		@self.bot.message_handler(commands=['start'])
 		def start_message(message):
-			globals_dict = {'page_date':0,'page_time':0,'np_date':0,'np_time':0,
-						'ans':'', 'tag':'error','picked_date':'',
-						'picked_prof':'','user_name':'',
-						'picked_time':'','picked_doc':''}
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 			btn1 = types.KeyboardButton(text='Да')
 			btn2 = types.KeyboardButton(text='Нет')
@@ -359,9 +359,20 @@ class TelegramBot:
 						set_user_data(message.from_user.id,'picked_doc', docs)
 				elif tag == 'name':
 					set_user_data(message.from_user.id,'picked_doc', ans)
-			
-				self.bot.send_message(message.from_user.id,text="Введите свое ФИО")
-				self.bot.register_next_step_handler(message, ask_number)
+				name = get_user_data(message.from_user.id, 'picked_doc')
+				docs_n_names = db.get_all_doc_n_names()
+				for doc_name in docs_n_names:
+					if doc_name[1]== name:
+						prof = doc_name[0]
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
+				btn1 = types.KeyboardButton(f'Данные верны')
+				btn2 = types.KeyboardButton(f'Изменить дату')
+				btn3 = types.KeyboardButton(f'Изменить время')
+				btn4 = types.KeyboardButton(f'/start')
+				keyboard.add(btn1, btn2, btn3, btn4)
+				self.bot.send_message(message.from_user.id,
+				f'\nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))} \nЧтобы вернутся в начало нажмите \start',reply_markup = keyboard)
+				self.bot.register_next_step_handler(message,changing_data)
 
 		@self.bot.message_handler(commands=['text'])
 		def ask_number(message):
@@ -371,15 +382,34 @@ class TelegramBot:
 
 		@self.bot.message_handler(commands=['text'])
 		def bye_successful(message):
-			db.record_inf(get_user_data(message.from_user.id, 'user_name'), message.text,
-			get_user_data(message.from_user.id, 'picked_date'),get_user_data(message.from_user.id, 'picked_time'),
+			name = get_user_data(message.from_user.id, 'picked_doc')
+			docs_n_names = db.get_all_doc_n_names()
+			for doc_name in docs_n_names:
+				if doc_name[1]== name:
+					prof = doc_name[0]
+			ticket = db.record_inf(message.from_user.id, get_user_data(message.from_user.id, 'user_name'), message.text,
+			get_user_data(message.from_user.id, 'picked_date'),get_user_data(message.from_user.id, 'picked_time'), prof,
 			get_user_data(message.from_user.id, 'picked_doc'))
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
 			btn1 = types.KeyboardButton(f'/start')
 			keyboard.add(btn1)
 			self.bot.send_message(message.from_user.id,
-			f'Спасибо за обращение!\n\nВы записаны к врачу\n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}',reply_markup = keyboard)
+			f'Спасибо за обращение!\n\nВы записаны к врачу\n{prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}, \nНомер талона: {ticket}',reply_markup = keyboard)
 
+		@self.bot.message_handler(commands=['text'])
+		def changing_data(message):
+			if message.text=='Данные верны':
+				self.bot.send_message(message.from_user.id,text="Введите свое ФИО")
+				self.bot.register_next_step_handler(message, ask_number)
+			elif message.text=='Изменить дату':
+				set_user_data(message.from_user.id,"page_date", 0)
+				set_user_data(message.from_user.id,"np_date", 0)	
+				print_dates(message)
+			elif message.text=='Изменить время':
+				set_user_data(message.from_user.id,"page_time", 0)
+				set_user_data(message.from_user.id,"np_time", 0)
+				print_times(message)
+		
 		self.bot.infinity_polling(none_stop=True, interval=1)
-		# class with write and read
+		# class with write and read "page_date": 0, "page_time": 0, "np_date": 0, "np_time": 0,
 
