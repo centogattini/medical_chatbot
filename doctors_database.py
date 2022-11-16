@@ -39,7 +39,6 @@ class Database():
         for i in res:
             dates.append(i[0])
 
-
         return dates
 
     #Возращает все свободные даты по профессии в формате YYYY-MM-DD
@@ -90,7 +89,6 @@ class Database():
 
 
         return [doc[0] for doc in res.fetchall()]
-
 
     #Произвести запись в расписание 
     def set_appointment(self, time, name, date): 
@@ -151,16 +149,46 @@ class Database():
         return res
 
     #Записать информацию о пациенте в таблицу records
-    def record_inf(self, name, phone, date, time, doc_name):
+    def record_inf(self, id, name, phone, date, time, doc_prof, doc_name):
         con = sqlite3.connect(self.path)
         cur = con.cursor()
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         time = datetime.datetime.strptime(time, '%H:%M').time()
         
-        self.set_appointment(time, doc_name, date)
 
-        cur.execute(f'INSERT INTO records VALUES("{name}", "{phone}", "{date}", "{time}", "{doc_name}")')
+        last_ticket = cur.execute('SELECT MAX(ticket) FROM records').fetchall()[0][0]
+        if last_ticket is None:
+            ticket = '100000000'
+        else:
+            ticket = str(int(last_ticket)+1)
+
+
+        self.set_appointment(time, doc_name, date)
+        cur.execute(f'INSERT INTO records VALUES("{id}", "{name}", "{phone}", "{date}", "{time}", "{doc_prof}", "{doc_name}", "{ticket}")')
         con.commit()
+
+        return ticket
+
+    #Получаем данные по id 
+    def get_tickets(self, id):
+        con = sqlite3.connect(self.path)
+        cur = con.cursor()
+        tickets = cur.execute(f'SELECT * FROM records WHERE date >= DATE("now") AND  id = "{id}"').fetchall()
+        return tickets
+
+    #Проверяем, относится ли введённый талон к пользователю (дописать!)
+    def is_related_to(self, id, ticket):
+        con = sqlite3.connect(self.path)
+        cur = con.cursor()
+        all_tickets = cur.execute(f'SELECT ticket FROM records WHERE id = "{id}"').fetchall()
+        all_tickets = [t[0] for t in all_tickets]
+
+        if ticket in all_tickets:
+            return True
+        else:
+            return False
+
+
 
     @staticmethod
     #hh:mm:ss -> thhmm 
