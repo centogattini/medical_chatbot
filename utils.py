@@ -34,3 +34,12 @@ def format_date(date):
         '12':'декабря',
     }
     return f'{d} {dct[m]}'
+
+def format_time(time):
+    # Input: time in format "HH:MM:SS"
+    # Output: time in format "HH:MM"
+    return time[:-3] 
+def format_appointment(id, patient, doctor, profession, date, time):
+    s = f'Талон **{id}**\n Пациент: {patient}\n' + \
+            f'Врач: {doctor}, {profession.capitalize()}' + \
+            f'Дата и время приема {format_date(date)} {format_time(time)}' 
