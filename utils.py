@@ -1,3 +1,4 @@
+import re
 #Преобразуем кортеж (1, 0, ...) свободного времени в лист вида [9:00, 9:30, ..]
 def time_to_text(time):
     res = []
@@ -34,3 +35,11 @@ def format_date(date):
         '12':'декабря',
     }
     return f'{d} {dct[m]}'
+
+#Проверка номера на корректность 
+def check_number(number):
+    check_number = re.search(r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', test4)
+    if bool(check_number) == True:
+        return True  
+    else: 
+        return False
