@@ -139,10 +139,8 @@ def normalize_text(text, tokenizied=False):
 
 
 def autocorrection(word, dictionary):
-
     closest = None
     closest_dist = float('inf')
-
     for i in range(len(dictionary)):
         d = distance(word, dictionary[i])
         if d < closest_dist:
