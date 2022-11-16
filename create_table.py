@@ -27,7 +27,7 @@ if __name__ == '__main__':
             con.commit()
     #______________________________________________
     #Создаем таблицу с информацией о пациенте (ФИО пациента, его номер, дата записи, время записи, ФИО врача)
-    cur.execute(f'CREATE TABLE records(name VARCHAR(255), phone VARCHAR(255), date DATE, time TIME, doc_name VARCHAR(255))')
+    cur.execute(f'CREATE TABLE records(id VARCHAR(255), name VARCHAR(255), phone VARCHAR(255), date DATE, time TIME, doc_prof VARCHAR(255), doc_name VARCHAR(255), ticket VARCHAR(255))')
     con.commit()
     #______________________________________________
     #Создаем основную таблицу

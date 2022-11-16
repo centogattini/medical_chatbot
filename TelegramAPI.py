@@ -128,10 +128,8 @@ class TelegramBot:
 
 			if btn1 and btn2:
 				keyboard.row(btn1, btn2)
-
 			elif btn1:
 				keyboard.add(btn1)
-				
 			elif btn2:
 				keyboard.add(btn2)
 
@@ -140,7 +138,6 @@ class TelegramBot:
 			self.bot.register_next_step_handler(message, ask_times)
 
 		#стартовое сообщение
-
 		@self.bot.message_handler(commands=['start'])
 		def start_message(message):
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
@@ -149,10 +146,14 @@ class TelegramBot:
 			btn3 = types.KeyboardButton(text='Посмотреть доступных врачей')
 			keyboard.row(btn1, btn2)
 			keyboard.add(btn3)
-		
-			self.bot.send_message(message.from_user.id, "Здравствуйте. Это медицинский бот для записи к врачу." + "\n\nВы знаете к кому обратиться?", reply_markup=keyboard)
+			self.bot.send_message(message.from_user.id, "Здравствуйте. Это медицинский бот для записи к врачу." +
+			 "\n\nВы знаете к кому обратиться?", reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
+
+		@self.bot.message_handler(commands=['text'])
+		def show_appointments(message):
+			pass
 
 		#обработка ответа на первое сообщение
 		@self.bot.message_handler(commands=['text'])
@@ -166,6 +167,7 @@ class TelegramBot:
 				self.bot.send_message(message.from_user.id,
 								"Напишите нам имя или профессию врача")
 				self.bot.register_next_step_handler(message, ask_2)
+
 			elif message.text == "Посмотреть доступных врачей":
 				alldocs = self.db.get_all_doc_n_names()
 				alldocs_str = ''
@@ -179,11 +181,8 @@ class TelegramBot:
 				btn2 = types.KeyboardButton(text='Нет')
 				keyboard.row(btn1, btn2)			
 				self.bot.send_message(message.from_user.id, "Вы знаете к кому обратиться?", reply_markup=keyboard)
-				
 				self.bot.register_next_step_handler(message, ask_1)
-				
-					
-				
+
 			else:
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 				btn1 = types.KeyboardButton(text='Да')
@@ -217,7 +216,18 @@ class TelegramBot:
 					'Кажется мы не нашли врача,который вам нужен. Мы можем записать вас к терапевту', 
 					reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, ask_3)
+			elif tag == 'autocorr':
+				
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard= True)
+				btn1 = types.KeyboardButton(text="Да")
+				btn2 = types.KeyboardButton(text="Нет")
+				keyboard.add(btn1, btn2)
 
+				self.bot.send_message(message.from_user.id,
+					f'Возможно, вы имели ввижу "{ans}"?', 
+					reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, message_correct)
+				
 			else:
 				print_dates(message)
 
@@ -271,15 +281,35 @@ class TelegramBot:
 		@self.bot.message_handler(commands=['text'])
 		def message_correct(message):
 			if message.text == "Нет":
-				# call "Кажется мы не нашли врача ..."
-				pass
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
+				btn1 = types.KeyboardButton(text='Да')
+				btn2 = types.KeyboardButton(text='Выход')
+				keyboard.add(btn1, btn2)
+				self.bot.send_message(message.from_user.id, 
+					f"Хотите выбрать врача из списка?",reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, choose_doctors_from_list)
 			elif message.text == "Да":
-				# call print_dates
-				pass
+				print_dates(message)
 			else:
 				self.botbot.send_message(message.from_user.id, 
-				f"Мы не распознали ваш запрос. Пожалуйста, воспользуйтесь кнопками",reply=keyboard)
+					f"Мы не распознали ваш запрос. Пожалуйста, воспользуйтесь кнопками",reply=keyboard)
 				self.bot.register_next_step_handler(message, message_correct)
+
+		@self.bot.message_handler(commands=['text'])
+		def choose_doctors_from_list(message):
+			if message.text == 'Да':
+				print_docs(message)
+			elif message.text == 'Выход':
+				bye_failed(message)
+		
+		def bye_failed(message):
+			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+			btn = types.KeyboardButton(text='\start')
+			keyboard.add(btn1)
+			self.bot.send_message(message.from_user.id, 
+				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку /start'",reply=keyboard)
+			self.bot.register_next_step_handler(message, start_message) 
+
 		@self.bot.message_handler(commands=['text'])
 		def ask_3(message):
 			if message.text == "Записаться к терапевту":
@@ -299,7 +329,8 @@ class TelegramBot:
 				keyboard.add(btn1, btn2)
 				self.bot.send_message(message.from_user.id, 
 				f"Мы не распознали ваш запрос. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
-				self.bot.register_next_step_handler(message, ask_5)
+				self.bot.register_next_step_handler(message, ask_3)
+
 		@self.bot.message_handler(commands=['text'])
 		def ask_dates(message):
 			if message.text == f'следующие {N_days} дат':
