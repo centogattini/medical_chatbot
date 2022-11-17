@@ -188,6 +188,16 @@ class Database():
         else:
             return False
 
+    #Удаляем запись пациента с records и timetable
+    def delete_record(self, ticket, doc_name, date, time):
+        con = sqlite3.connect(self.path)
+        cur = con.cursor()
+        cur.execute(f'DELETE FROM records WHERE ticket = "{ticket}"')   
+        con.commit()
+
+        time = Database.format_time(time)
+        cur.execute(f'UPDATE timetable SET "{time}" = 0 WHERE name = "{doc_name}" AND date = "{date}"')
+        con.commit()
 
 
     @staticmethod
