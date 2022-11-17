@@ -472,10 +472,19 @@ class TelegramBot:
 				print_dates(message)
 				set_user_data(message.from_user.id,'picked_date', None)
 			else:
+
+				set_user_data(message.from_user.id,'picked_date', message.text)
+				picked_date = message.text
+				#set_user_data(message.from_user.id,'last_message',None)
+				print_times(message)
 				set_user_data(message.from_user.id,'picked_time', message.text)
 				tag = get_user_data(message.from_user.id,'tag')
 				ans = get_user_data(message.from_user.id,'ans')
 				if tag == 'prof':
+					times = db.get_time_by_profession(ans)
+					if not message.text in times:
+						self.bot.send_message(message.from_user.id,"Некорректное время, выберите еще раз ")
+						print_times(message)
 					docs = db.get_all_docs_by_datetime(ans.capitalize(), get_user_data(message.from_user.id,
 					'picked_date'), get_user_data(message.from_user.id,'picked_time'))
 					if len(docs)>0:
@@ -483,6 +492,10 @@ class TelegramBot:
 					else:
 						set_user_data(message.from_user.id,'picked_doc', docs)
 				elif tag == 'name':
+					times = db.get_available_time(ans, get_user_data(message.from_user.id,"picked_date"))
+					if not message.text in times:
+						self.bot.send_message(message.from_user.id,"Некорректное время, выберите еще раз ")
+						print_times(message)
 					set_user_data(message.from_user.id,'picked_doc', ans)
 				name = get_user_data(message.from_user.id, 'picked_doc')
 				docs_n_names = db.get_all_doc_n_names()
