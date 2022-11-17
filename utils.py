@@ -52,4 +52,3 @@ def check_number(number):
         return True  
     else: 
         return False
-    
