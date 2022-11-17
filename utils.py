@@ -55,5 +55,4 @@ def check_name(name):
     else:
         return False
 
-    #проверка на кириллицу + пробелы (или чистая латиница)
     
