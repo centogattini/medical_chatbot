@@ -44,5 +44,16 @@ def check_number(number):
     else: 
         return False
 
+#Проверка имена на корректность
+def check_name(name):
+    name = name.replace(" ", "")
+    print(name)
+    incorrect_symbols = re.search(r'[^а-яА-ЯёЁ]', name)
 
+    if bool(incorrect_symbols) == False:
+        return True
+    else:
+        return False
+
+    #проверка на кириллицу + пробелы (или чистая латиница)
     
