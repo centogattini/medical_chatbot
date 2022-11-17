@@ -137,9 +137,7 @@ class TelegramBot:
 			self.bot.send_message(message.from_user.id,'Выберите время для записи', reply_markup=keyboard)
 			self.bot.register_next_step_handler(message, ask_times)
 
-		#стартовое сообщение
-		@self.bot.message_handler(commands=['start'])
-		def start_message(message):
+		def print_start(message):
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 			btn1 = types.KeyboardButton(text='Да')
 			btn2 = types.KeyboardButton(text='Нет')
@@ -153,6 +151,11 @@ class TelegramBot:
 			 "\n\nВы знаете к кому обратиться?", reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
+
+		#стартовое сообщение
+		@self.bot.message_handler(commands=['start'])
+		def start_message(message):
+			print_start(message)
 
 		def show_appointments(message):
 			appointments = db.get_tickets(message.from_user.id)
@@ -205,10 +208,45 @@ class TelegramBot:
 					
 		@self.bot.message_handler(commands=['text'])
 		def delete_appointment(message):
-			appointments = self.db.get_tickets(message.from_user.id)
+			appointments = db.get_tickets(message.from_user.id)
 			appointments_ids = [appointment[-1] for appointment in appointments]
 			if message.text in appointments_ids:
-				self.db.delete_record()
+				db.delete_record(message.text)
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
+				if len(appointments_ids) > 1:
+					btn0 = types.KeyboardButton(text='Отменить еще одну запись')
+					keyboard.add(btn0)
+				btn1 = types.KeyboardButton(text='Записaться к врачу')
+				btn2 = types.KeyboardButton(text='Выход')
+				keyboard.row(btn1, btn2)
+				self.bot.send_message(message.from_user.id, 
+					f"Выберете действие",reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, after_deletion)	
+		@self.bot.message_handler(commands=['text'])
+		def after_deletion(message):
+			if message.text == 'Выход':
+				# bye (copy from somewhere)
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+				btn = types.KeyboardButton(text="\start")
+				keyboard.add(btn)
+				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
+					reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, start_message)	
+			elif message.text == "Записаться к врачу":
+				print_start(message)
+			elif message.text == "Отменить еще одну запись":
+				show_appointments(message)
+			else:
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+				if len(db.get_tickets(message.from_user.id)) > 1:
+					btn0 = types.KeyboardButton(text='Отменить еще одну запись')
+					keyboard.add(btn0)
+				btn1 = types.KeyboardButton(text='Записаться к врачу')
+				btn2 = types.KeyboardButton(text='Выход')
+				keyboard.add(btn1, btn2)
+				self.bot.send_message(message.from_user.id, 
+				f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, after_deletion)	
 		#обработка ответа на первое сообщение
 		@self.bot.message_handler(commands=['text'])
 		def ask_1(message):
@@ -262,7 +300,6 @@ class TelegramBot:
 			#прописать соотвествующие тэги
 			#если не смогли обработать имя или профессию
 			if tag == 'error':
-
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard= True)
 				btn1 = types.KeyboardButton(text="Записаться к терапевту")
 				btn2 = types.KeyboardButton(text='Нет')
@@ -361,7 +398,7 @@ class TelegramBot:
 		def bye_failed(message):
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 			btn = types.KeyboardButton(text='\start')
-			keyboard.add(btn1)
+			keyboard.add(btn)
 			self.bot.send_message(message.from_user.id, 
 				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку /start'",reply=keyboard)
 			self.bot.register_next_step_handler(message, start_message) 
