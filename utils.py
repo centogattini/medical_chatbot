@@ -36,7 +36,6 @@ def format_date(date):
     }
     return f'{d} {dct[m]}'
 
-<<<<<<< HEAD
 def format_time(time):
     # Input: time in format "HH:MM:SS"
     # Output: time in format "HH:MM"
@@ -45,7 +44,8 @@ def format_appointment(id, patient, doctor, profession, date, time):
     s = f'Талон **{id}**\n Пациент: {patient}\n' + \
             f'Врач: {doctor}, {profession.capitalize()}' + \
             f'Дата и время приема {format_date(date)} {format_time(time)}' 
-=======
+    print(s)
+    return s
 #Проверка номера на корректность 
 def check_number(number):
     check_number = re.search(r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', test4)
@@ -53,4 +53,3 @@ def check_number(number):
         return True  
     else: 
         return False
->>>>>>> 397f838e08a5eb28a6b53009d89c136af05a3802

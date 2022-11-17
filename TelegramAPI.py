@@ -166,10 +166,11 @@ class TelegramBot:
 					date=appointments[3], 
 					time=appointments[4]
 					) + '\n'
+
 			btn1 = types.KeyboardButton(text="Удалить запись к врачу")
 			btn2 = types.KeyboardButton(text="Выход")
 			keyboard.row(btn1, btn2)
-			self.bot.send_message(message.from_user.id, apppointments_str, reply_markup=keyboard, parse_mode="Markdown")
+			self.bot.send_message(message.from_user.id, appointments_str, reply_markup=keyboard, parse_mode="Markdown")
 			self.bot.register_next_step_handler(message, ask_to_delete)	
 		@self.bot.message_handler(commands=['text'])
 		def ask_to_delete(message):
@@ -188,7 +189,7 @@ class TelegramBot:
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 				btn = types.KeyboardButton(text="\start")
 				keyboard.add(btn)
-				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу, или посмотреть свои талоны нажмите кнопку /start", 
+				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
 					reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, start_message)	
 				
