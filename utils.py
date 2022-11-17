@@ -38,8 +38,11 @@ def format_date(date):
 
 #Проверка номера на корректность 
 def check_number(number):
-    check_number = re.search(r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', test4)
+    check_number = re.search(r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', number)
     if bool(check_number) == True:
         return True  
     else: 
         return False
+
+def check_name(name):
+    check_name = 
