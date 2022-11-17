@@ -183,7 +183,7 @@ class TelegramBot:
 					keyboard.add(btn)
 				btn2 = types.KeyboardButton(text="Выход")
 				keyboard.add(btn2)
-				self.bot.send_message(message.from_user.id, "Выберете талон", reply_markup=keyboard, parse_mode="Markdown")
+				self.bot.send_message(message.from_user.id, "Выберите талон", reply_markup=keyboard, parse_mode="Markdown")
 				self.bot.register_next_step_handler(message, delete_appointment)	
 				
 			elif message.text == 'Выход':
@@ -205,10 +205,10 @@ class TelegramBot:
 					
 		@self.bot.message_handler(commands=['text'])
 		def delete_appointment(message):
-			appointments = db.get_tickets(message.from_user.id)
-			appointments_ids = [appointment[i][-1] for appointment in appointments]
+			appointments = self.db.get_tickets(message.from_user.id)
+			appointments_ids = [appointment[-1] for appointment in appointments]
 			if message.text in appointments_ids:
-				pass
+				self.db.delete_record()
 		#обработка ответа на первое сообщение
 		@self.bot.message_handler(commands=['text'])
 		def ask_1(message):
