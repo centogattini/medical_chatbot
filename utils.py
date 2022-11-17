@@ -44,7 +44,7 @@ def check_number(number):
     else: 
         return False
 
-#Проверка имена на корректность
+#Проверка имени на корректность
 def check_name(name):
     name = name.replace(" ", "")
     print(name)
