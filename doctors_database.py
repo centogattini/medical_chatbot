@@ -21,12 +21,15 @@ class Database():
             t14, t1430, t15, t1530, t16, t1630, t17, t1730, t18, t1830, t19, t1930 \
             FROM timetable \
             AS T WHERE T.date = "{date}" AND T.name = "{name}"')
-
+        
         if not res:
             return None
 
-        res = utils.time_to_text(res.fetchall()[0])
-        return res
+        fetch = res.fetchall()
+        if not fetch:
+            return None
+        
+        return utils.time_to_text(fetch[0])
 
     #Возращает все свободные даты по имени в формате YYYY-MM-DD
     def get_date_by_name(self, name):
@@ -102,7 +105,7 @@ class Database():
             con.commit()
             return 0
         except:
-            return print("Ошибка записи!")
+            raise Exception
 
     #Получить множество всех врачей с именами
     def get_all_doc_n_names(self)->set:
@@ -192,10 +195,16 @@ class Database():
     def delete_record(self, ticket):
         con = sqlite3.connect(self.path)
         cur = con.cursor()
-        
         res = cur.execute(f'SELECT doc_name, date, time FROM records WHERE ticket = "{ticket}"')
-        res = res.fetchall()[0]
 
+        if not res:
+            return None
+
+        res = res.fetchall()
+        if not res:
+            return None
+
+        res = res.fetchall()[0]
         doc_name = res[0]
         date = res[1]
         time = res[2]
