@@ -191,7 +191,7 @@ class TelegramBot:
 				
 			elif message.text == 'Выход':
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-				btn = types.KeyboardButton(text="\start")
+				btn = types.KeyboardButton(text="/start")
 				keyboard.add(btn)
 				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
 					reply_markup=keyboard)
@@ -227,7 +227,7 @@ class TelegramBot:
 			if message.text == 'Выход':
 				# bye (copy from somewhere)
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-				btn = types.KeyboardButton(text="\start")
+				btn = types.KeyboardButton(text="/start")
 				keyboard.add(btn)
 				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
 					reply_markup=keyboard)
@@ -397,7 +397,7 @@ class TelegramBot:
 		
 		def bye_failed(message):
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-			btn = types.KeyboardButton(text='\start')
+			btn = types.KeyboardButton(text='/start')
 			keyboard.add(btn)
 			self.bot.send_message(message.from_user.id, 
 				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку <b>/start</b>",reply=keyboard, parse_mode='html')
@@ -509,7 +509,7 @@ class TelegramBot:
 				btn4 = types.KeyboardButton(f'Выход')
 				keyboard.add(btn1, btn2, btn3, btn4)
 				self.bot.send_message(message.from_user.id,
-				f'\nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))} \nЧтобы вернутся в начало нажмите <b>\start</b>',reply_markup = keyboard, parse_mode='html')
+				f'\nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))} \nЧтобы вернутся в начало нажмите <b>/start</b>',reply_markup = keyboard, parse_mode='html')
 				self.bot.register_next_step_handler(message,changing_data)
 
 		@self.bot.message_handler(commands=['text'])
@@ -549,7 +549,7 @@ class TelegramBot:
 				print_times(message)
 			elif message.text == "Выход":
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-				btn = types.KeyboardButton(text="\start")
+				btn = types.KeyboardButton(text="/start")
 				keyboard.add(btn)
 				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
 					reply_markup=keyboard)
