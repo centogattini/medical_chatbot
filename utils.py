@@ -41,10 +41,9 @@ def format_time(time):
     # Output: time in format "HH:MM"
     return time[:-3] 
 def format_appointment(id, patient, doctor, profession, date, time):
-    s = f'Талон **{id}**\n Пациент: {patient}\n' + \
-            f'Врач: {doctor}, {profession.capitalize()}' + \
+    s = f'Талон <b>{id}</b>\nПациент: {patient}\n' + \
+            f'Врач: {doctor}, {profession.capitalize()}\n' + \
             f'Дата и время приема {format_date(date)} {format_time(time)}' 
-    print(s)
     return s
 #Проверка номера на корректность 
 def check_number(number):
