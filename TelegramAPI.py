@@ -238,8 +238,9 @@ class TelegramBot:
 				btn_no = types.KeyboardButton(text="Нет")
 				keyboard.add(btn_yes, btn_no)
 				self.bot.send_message(message.from_user.id, 
-									f"Мы не знаем, к какому врачу вам обратиться, но можем записать вас к терапевту для подробной консультации.",
-									reply_markup=keyboard)
+									f"Мы не знаем, к какому врачу вам обратиться, но можем записать вас к <b>терапевту</b> для подробной консультации.",
+									reply_markup=keyboard,
+									parse_mode='html')
 				set_user_data(message.from_user.id, 'ans', 'терапевт')
 				self.bot.register_next_step_handler(message, ask_3)
 
@@ -301,7 +302,11 @@ class TelegramBot:
 			btn1 = types.KeyboardButton(text='\start')
 			keyboard.add(btn1)
 			self.bot.send_message(message.from_user.id, 
+<<<<<<< HEAD
 				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку /start'",reply_markup=keyboard)
+=======
+				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку <b>/start</b>",reply=keyboard, parse_mode='html')
+>>>>>>> dc10e0960eb5514ede85e3f4cf35a3c4494759da
 			self.bot.register_next_step_handler(message, start_message) 
 
 		@self.bot.message_handler(commands=['text'])
@@ -397,7 +402,11 @@ class TelegramBot:
 				btn4 = types.KeyboardButton(f'Выход')
 				keyboard.add(btn1, btn2, btn3, btn4)
 				self.bot.send_message(message.from_user.id,
+<<<<<<< HEAD
 				f'\nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}',reply_markup = keyboard)
+=======
+				f'\nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))} \nЧтобы вернутся в начало нажмите <b>\start</b>',reply_markup = keyboard, parse_mode='html')
+>>>>>>> dc10e0960eb5514ede85e3f4cf35a3c4494759da
 				self.bot.register_next_step_handler(message,changing_data)
 
 		@self.bot.message_handler(commands=['text'])
