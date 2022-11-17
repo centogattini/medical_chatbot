@@ -44,5 +44,3 @@ def check_number(number):
     else: 
         return False
 
-def check_name(name):
-    check_name = 
