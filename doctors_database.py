@@ -216,6 +216,20 @@ class Database():
         cur.execute(f'UPDATE timetable SET "{time}" = 0 WHERE name = "{doc_name}" AND date = "{date}"')
         con.commit()
 
+    #Получаем информацию о расписании для одного врача
+    def get_timetable_by_name(self, name):
+        columns = 'profession name date t9 t930 t10	t1030 t11 t1130	t12	t1230 t13 t1330	t14	t1430 t15 t1530	t16	t1630 t17 t1730	t18	t1830 t19 t1930'.split()
+        con = sqlite3.connect(self.path)
+        cur = con.cursor()
+        res = cur.execute(f'SELECT *  FROM timetable WHERE name = "{name}"')        
+
+        if not res:
+            return None      
+        res = res.fetchall()
+
+        return columns, res
+
+
 
     @staticmethod
     #hh:mm:ss -> thhmm 
