@@ -102,10 +102,7 @@ class TelegramBot:
 			page_time += np_time
 
 			set_user_data(message.from_user.id,'page_time',page_time)
-			if message.text == 'Изменить время':
-				date = get_user_data(message.from_user.id,'picked_date')
-			else:
-				date = message.text
+			date = get_user_data(message.from_user.id,'picked_date')
 			if tag == 'prof':
 				times = self.db.get_time_by_profession(date, ans.capitalize())
 			elif tag == 'name':
@@ -120,7 +117,7 @@ class TelegramBot:
 				
 			btn1 = None
 			btn2 = None
-			if page_time*N_days + N_days >= len(times):
+			if page_time*N_times + N_times < len(times):
 				btn1 = types.KeyboardButton(text=f'следующие {N_times} талонов')
 			if page_time != 0:
 				btn2 = types.KeyboardButton(text=f'предыдущие {N_times} талонов')
@@ -385,13 +382,13 @@ class TelegramBot:
 				print_dates(message)
 			else:
 				self.bot.send_message(message.from_user.id, 
-					f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply=keyboard)
+					f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup==keyboard)
 				self.bot.register_next_step_handler(message, message_correct)
 
 		@self.bot.message_handler(commands=['text'])
 		def choose_doctors_from_list(message):
 			if message.text == 'Да':
-				print_docs(message)
+				print_profs(message)
 			elif message.text == 'Выход':
 				bye_failed(message)
 		
@@ -400,7 +397,7 @@ class TelegramBot:
 			btn = types.KeyboardButton(text='/start')
 			keyboard.add(btn)
 			self.bot.send_message(message.from_user.id, 
-				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку <b>/start</b>",reply=keyboard, parse_mode='html')
+				f"К сожалению, мы не смогли записать Вас к врачу. \nЧтобы попробовать еще раз нажмите кнопку <b>/start</b>",reply_markup=keyboard, parse_mode='html')
 			self.bot.register_next_step_handler(message, start_message) 
 
 		@self.bot.message_handler(commands=['text'])
@@ -466,25 +463,23 @@ class TelegramBot:
 				print_times(message)
 
 			elif message.text == f'предыдущие {N_times} талонов':
-				set_user_data(message.from_user.id,'np_time',1)
+				set_user_data(message.from_user.id,'np_time',-1)
 				print_times(message)
 			elif message.text == 'возврат к выбору даты':
 				print_dates(message)
 				set_user_data(message.from_user.id,'picked_date', None)
 			else:
-
-				set_user_data(message.from_user.id,'picked_date', message.text)
-				picked_date = message.text
-				#set_user_data(message.from_user.id,'last_message',None)
-				print_times(message)
 				set_user_data(message.from_user.id,'picked_time', message.text)
 				tag = get_user_data(message.from_user.id,'tag')
 				ans = get_user_data(message.from_user.id,'ans')
 				if tag == 'prof':
-					times = db.get_time_by_profession(ans)
+					times = db.get_time_by_profession(get_user_data(message.from_user.id,"picked_date"),ans.capitalize())
 					if not message.text in times:
 						self.bot.send_message(message.from_user.id,"Некорректное время, выберите еще раз ")
+						set_user_data(message.from_user.id,"page_time",0)
+						set_user_data(message.from_user.id,"np_time",0)
 						print_times(message)
+						return
 					docs = db.get_all_docs_by_datetime(ans.capitalize(), get_user_data(message.from_user.id,
 					'picked_date'), get_user_data(message.from_user.id,'picked_time'))
 					if len(docs)>0:
@@ -495,7 +490,10 @@ class TelegramBot:
 					times = db.get_available_time(ans, get_user_data(message.from_user.id,"picked_date"))
 					if not message.text in times:
 						self.bot.send_message(message.from_user.id,"Некорректное время, выберите еще раз ")
+						set_user_data(message.from_user.id,"page_time",0)
+						set_user_data(message.from_user.id,"np_time",0)
 						print_times(message)
+						return
 					set_user_data(message.from_user.id,'picked_doc', ans)
 				name = get_user_data(message.from_user.id, 'picked_doc')
 				docs_n_names = db.get_all_doc_n_names()
