@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-from utils import format_date, format_appointment, reformat_date
+from utils import format_date, format_appointment, reformat_date, is_name, is_number
 import json
 
 PATH_USER_DATA = 'data/user_data.json'
@@ -125,7 +125,7 @@ class TelegramBot:
 			btn3 = types.KeyboardButton(text='возврат к выбору даты')
 
 			if btn1 and btn2:
-				keyboard.row(btn1, btn2)
+				keyboard.row(btn2, btn1)
 			elif btn1:
 				keyboard.add(btn1)
 			elif btn2:
@@ -515,14 +515,14 @@ class TelegramBot:
 				for doc_name in docs_n_names:
 					if doc_name[1]== name:
 						prof = doc_name[0]
-				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard=True)
 				btn1 = types.KeyboardButton(f'Данные верны')
 				btn2 = types.KeyboardButton(f'Изменить дату')
 				btn3 = types.KeyboardButton(f'Изменить время')
 				btn4 = types.KeyboardButton(f'Выход')
 				keyboard.add(btn1, btn2, btn3, btn4)
 				self.bot.send_message(message.from_user.id,
-				f'\nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))} \nЧтобы вернутся в начало нажмите <b>/start</b>',reply_markup = keyboard, parse_mode='html')
+				f'Проверьте правильность введенных данных \nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}',reply_markup = keyboard, parse_mode='html')
 				self.bot.register_next_step_handler(message,changing_data)
 
 		@self.bot.message_handler(commands=['text'])
@@ -531,27 +531,33 @@ class TelegramBot:
 
 		@self.bot.message_handler(commands=['text'])
 		def ask_number(message):
-			set_user_data(message.from_user.id, 'user_name', message.text)
-			self.bot.send_message(message.from_user.id, text="Введите свой номер телефона")
-			self.bot.register_next_step_handler(message, bye_successful)
+			if not is_name(message.text):
+				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \n Введите свое ФИО')
+				self.bot.register_next_step_handler(message, ask_number)
+			else:
+				set_user_data(message.from_user.id, 'user_name', message.text)
+				self.bot.send_message(message.from_user.id, text="Введите свой номер телефона")
+				self.bot.register_next_step_handler(message, bye_successful)
 
 		@self.bot.message_handler(commands=['text'])
 		def bye_successful(message):
-			name = get_user_data(message.from_user.id, 'picked_doc')
-			docs_n_names = db.get_all_doc_n_names()
-			for doc_name in docs_n_names:
-				if doc_name[1]== name:
-					prof = doc_name[0]
-			
-			ticket = db.record_inf(message.from_user.id, get_user_data(message.from_user.id, 'user_name'), message.text,
-			get_user_data(message.from_user.id, 'picked_date'),get_user_data(message.from_user.id, 'picked_time'), prof,
-			get_user_data(message.from_user.id, 'picked_doc'))
-
-			keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
-			btn1 = types.KeyboardButton(f'/start')
-			keyboard.add(btn1)
-			self.bot.send_message(message.from_user.id,
-			f'Спасибо за обращение!\n\nВы записаны к врачу\n{prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}, \nНомер талона: {ticket}',reply_markup = keyboard)
+			if not is_number(message.text):
+				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \n Введите свой номер телефона')
+				self.bot.register_next_step_handler(message, bye_successful)
+			else:
+				name = get_user_data(message.from_user.id, 'picked_doc')
+				docs_n_names = db.get_all_doc_n_names()
+				for doc_name in docs_n_names:
+					if doc_name[1]== name:
+						prof = doc_name[0]
+				ticket = db.record_inf(message.from_user.id, get_user_data(message.from_user.id, 'user_name'), message.text,
+				get_user_data(message.from_user.id, 'picked_date'),get_user_data(message.from_user.id, 'picked_time'), prof,
+				get_user_data(message.from_user.id, 'picked_doc'))
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
+				btn1 = types.KeyboardButton(f'/start')
+				keyboard.add(btn1)
+				self.bot.send_message(message.from_user.id,
+				f'Спасибо за обращение!\n\nВы записаны к врачу\n{prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))} \nНомер талона: {ticket}',reply_markup = keyboard)
 
 		@self.bot.message_handler(commands=['text'])
 		def changing_data(message):
