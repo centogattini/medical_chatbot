@@ -141,7 +141,7 @@ class TelegramBot:
 				keyboard.add(btn1)
 			elif btn2:
 				keyboard.add(btn2)
-				
+
 			keyboard.row(btn3)
 			self.bot.send_message(message.from_user.id,'Выберите время для записи', reply_markup=keyboard)
 			self.bot.register_next_step_handler(message, ask_times)
@@ -156,8 +156,9 @@ class TelegramBot:
 			if self.db.get_tickets(message.from_user.id): 
 				btn4 = types.KeyboardButton(text='Мои талоны')
 				keyboard.add(btn4)
-			self.bot.send_message(message.from_user.id, "Здравствуйте. Это медицинский бот для записи к врачу." +
-			 "\n\nВы знаете к кому обратиться?", reply_markup=keyboard)
+			self.bot.send_message(message.from_user.id, 
+								  "Здравствуйте. Это медицинский бот для записи к врачу." +
+			 					  "\n\nВы знаете к кому обратиться?", reply_markup=keyboard)
 			add_user(message.from_user.id, globals_dict)
 			self.bot.register_next_step_handler(message, ask_1)
 
@@ -172,14 +173,13 @@ class TelegramBot:
 			appointments_str = ''
 			for i in range(len(appointments)):
 				appointment = appointments[i]
-				appointments_str += format_appointment(
-					id=appointment[-1],
-					patient=appointment[1],
-					doctor=appointment[6], 	
-					profession=appointment[5], 
-					date=appointment[3], 
-					time=appointment[4]
-					) + '\n\n'
+				appointments_str += format_appointment(id=appointment[-1],
+													   patient=appointment[1],
+													   doctor=appointment[6], 	
+													   profession=appointment[5], 
+													   date=appointment[3], 
+													   time=appointment[4]) + '\n\n'
+
 			btn1 = types.KeyboardButton(text="Удалить запись к врачу")
 			btn2 = types.KeyboardButton(text="Выход")
 			keyboard.row(btn1, btn2)
@@ -212,7 +212,8 @@ class TelegramBot:
 				btn2 = types.KeyboardButton(text='Выход')
 				keyboard.add(btn1, btn2)
 				self.bot.send_message(message.from_user.id, 
-				f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
+									  f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками", 
+									  reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, ask_to_delete)	
 					
 		@self.bot.message_handler(commands=['text'])
@@ -221,7 +222,10 @@ class TelegramBot:
 			appointments_ids = [appointment[-1] for appointment in appointments]
 
 			if message.text in appointments_ids:
-				db.delete_record(message.text)
+				self.db.delete_record(message.text)
+				self.bot.send_message(message.from_user.id, 
+									  f"Запись к врачу <b>{message.text}</b> отменена. ", 
+									  parse_mode='html')
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 				if len(appointments_ids) > 1:
 					btn0 = types.KeyboardButton(text='Отменить еще одну запись')
@@ -526,7 +530,7 @@ class TelegramBot:
 				btn4 = types.KeyboardButton(f'Выход')
 				keyboard.add(btn1, btn2, btn3, btn4)
 				self.bot.send_message(message.from_user.id,
-				f'Проверьте правильность введенных данных \nВрач: {prof} \n{get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}',reply_markup = keyboard, parse_mode='html')
+				f'Проверьте правильность введенных данных \nВрач: {prof} \nИмя врача: {get_user_data(message.from_user.id,"picked_doc")}\nДень приема: {format_date(get_user_data(message.from_user.id,"picked_date"))}\nВремя приема: {(get_user_data(message.from_user.id,"picked_time"))}',reply_markup = keyboard, parse_mode='html')
 				self.bot.register_next_step_handler(message,changing_data)
 
 		@self.bot.message_handler(commands=['text'])
