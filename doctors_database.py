@@ -108,7 +108,7 @@ class Database():
             raise Exception
 
     #Получить множество всех врачей с именами
-    def get_all_doc_n_names(self)->set:
+    def get_all_doc_n_names(self)->list:
         con = sqlite3.connect(self.path)
         cur = con.cursor()
         res = cur.execute(f'SELECT DISTINCT profession, name \
@@ -118,20 +118,20 @@ class Database():
         return res
     
     #Получить множество имен всех врачей
-    def get_all_names(self)->set:
+    def get_all_names(self)->list:
         con = sqlite3.connect(self.path)
         cur = con.cursor()
         res = cur.execute(f'SELECT DISTINCT name FROM timetable')
         res = set([r[0] for r in res.fetchall()])
-        return res
+        return list(res)
 
     #Получить множество всех профессии врачей 
-    def get_all_professions(self)->set:
+    def get_all_professions(self)->list:
         con = sqlite3.connect(self.path)
         cur = con.cursor()
         res = cur.execute(f'SELECT DISTINCT profession FROM timetable')
         res = set(r[0] for r in res.fetchall())
-        return res
+        return list(res)
 
     #Получить словарь вида {врач:симптомы}
     def get_symps_dict(self):

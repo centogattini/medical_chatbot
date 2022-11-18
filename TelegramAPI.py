@@ -294,12 +294,15 @@ class TelegramBot:
 		#если человек знает к кому обратиться
 		@self.bot.message_handler(commands=['text'])
 		def ask_2(message):
+
 			if not type(message.text) is str:
 				self.bot.send_message(message.from_user.id, 
 				f"Мы не распознали ваш ответ. Пожалуйста, напишите имя или профессию врача",reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, ask_2)
+
 			##обрабатываем входную строку
 			ans, tag = clf.identify_name_or_profession(message.text)
+			print(ans, tag)
 			set_user_data(message.from_user.id,'tag', tag)
 			set_user_data(message.from_user.id,'ans', ans)
 			#прописать соотвествующие тэги
@@ -308,14 +311,14 @@ class TelegramBot:
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard= True)
 				btn1 = types.KeyboardButton(text="Записаться к терапевту")
 				btn2 = types.KeyboardButton(text='Нет')
-				keyboard.add(btn1, btn2)
-
+				keyboard.row(btn1, btn2)
+				btn3 = types.KeyboardButton(text='Выбрать врача самостоятельно')
+				keyboard.add(btn3)
 				self.bot.send_message(message.from_user.id,
 					'Кажется мы не нашли врача,который вам нужен. Мы можем записать вас к терапевту', 
 					reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, ask_3)
 			elif tag == 'autocorr':
-				
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard= True)
 				btn1 = types.KeyboardButton(text="Да")
 				btn2 = types.KeyboardButton(text="Нет")
@@ -338,9 +341,11 @@ class TelegramBot:
 			set_user_data(message.from_user.id,'tag',tag)
 			if tag == 'error':
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard= True)
-				btn_yes = types.KeyboardButton(text="Записаться к терапевту")
-				btn_no = types.KeyboardButton(text="Нет")
-				keyboard.add(btn_yes, btn_no)
+				btn_1 = types.KeyboardButton(text="Записаться к терапевту")
+				btn_2 = types.KeyboardButton(text="Нет")
+				btn_3 = types.KeyboardButton(text="Выбрать врача самостоятельно")
+				keyboard.row(btn_1, btn_2)
+				keyboard.add(btn_3)
 				self.bot.send_message(message.from_user.id, 
 									f"Мы не знаем, к какому врачу вам обратиться, но можем записать вас к <b>терапевту</b> для подробной консультации.",
 									reply_markup=keyboard,
@@ -420,6 +425,8 @@ class TelegramBot:
 				btn1 = types.KeyboardButton(f'/start')
 				keyboard.add(btn1)
 				self.bot.send_message(message.from_user.id,'До свидания!', reply_markup=keyboard)
+			elif message.text == 'Выбрать врача самостоятельно':
+				print_profs(message)
 			else:
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
 				btn1 = types.KeyboardButton(text='Записаться к терапевту')
