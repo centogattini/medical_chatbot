@@ -204,10 +204,10 @@ class Database():
         if not res:
             return None
 
-        res = res.fetchall()[0]
-        doc_name = res[0]
-        date = res[1]
-        time = res[2]
+        data = res[0]
+        doc_name = data[0]
+        date = data[1]
+        time = data[2]
 
         cur.execute(f'DELETE FROM records WHERE ticket = "{ticket}"')   
         con.commit()
