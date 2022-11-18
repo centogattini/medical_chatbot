@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-from utils import format_date, format_appointment
+from utils import format_date, format_appointment, reformat_date
 import json
 
 PATH_USER_DATA = 'data/user_data.json'
@@ -64,7 +64,8 @@ class TelegramBot:
 			start_date = page_date*N_days
 			curr_date = start_date
 			while curr_date < start_date + N_days and curr_date < len(dates):
-				keyboard.add(types.KeyboardButton(text=str(dates[curr_date])))
+				fdate = format_date(str(dates[curr_date]))
+				keyboard.add(types.KeyboardButton(text=fdate))
 				curr_date += 1
 			btn1 = None
 			btn2 = None
@@ -323,7 +324,6 @@ class TelegramBot:
 				btn1 = types.KeyboardButton(text="Да")
 				btn2 = types.KeyboardButton(text="Нет")
 				keyboard.add(btn1, btn2)
-
 				self.bot.send_message(message.from_user.id,
 					f'Возможно, вы имели ввижу "{ans}"?', 
 					reply_markup=keyboard)
@@ -460,13 +460,13 @@ class TelegramBot:
 					dates = db.get_date_by_profession(ans.capitalize())
 				elif tag == 'name':
 					dates = db.get_date_by_name(ans)
-
-				if not message.text in dates:
+				text = reformat_date(message.text)
+				if not text in dates:
 					self.bot.send_message(message.from_user.id,"Некорректная дата, выберите еще раз ")
 					print_dates(message)
 					return
-				set_user_data(message.from_user.id,'picked_date', message.text)
-				picked_date = message.text
+				set_user_data(message.from_user.id,'picked_date', text)
+				picked_date = text
 				#set_user_data(message.from_user.id,'last_message',None)
 				print_times(message)
 		# сказать пока, если человек не смог записаться к врачу
