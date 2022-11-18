@@ -325,7 +325,7 @@ class TelegramBot:
 				btn2 = types.KeyboardButton(text="Нет")
 				keyboard.add(btn1, btn2)
 				self.bot.send_message(message.from_user.id,
-					f'Возможно, вы имели ввижу "{ans}"?', 
+					f'Возможно, вы имели ввиду "{ans}"?', 
 					reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, message_correct)
 				
@@ -532,7 +532,7 @@ class TelegramBot:
 		@self.bot.message_handler(commands=['text'])
 		def ask_number(message):
 			if not is_name(message.text):
-				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \n Введите свое ФИО')
+				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \nВведите свое ФИО')
 				self.bot.register_next_step_handler(message, ask_number)
 			else:
 				set_user_data(message.from_user.id, 'user_name', message.text)
@@ -542,7 +542,7 @@ class TelegramBot:
 		@self.bot.message_handler(commands=['text'])
 		def bye_successful(message):
 			if not is_number(message.text):
-				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \n Введите свой номер телефона')
+				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \nВведите свой номер телефона')
 				self.bot.register_next_step_handler(message, bye_successful)
 			else:
 				name = get_user_data(message.from_user.id, 'picked_doc')
