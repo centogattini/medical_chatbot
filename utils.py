@@ -48,7 +48,7 @@ def format_appointment(id, patient, doctor, profession, date, time):
     return s
 
 #Проверка номера на корректность 
-def check_number(number):
+def is_number(number):
     check_number = re.search(r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', number)
     if bool(check_number) == True:
         return True  
@@ -56,7 +56,7 @@ def check_number(number):
         return False
 
 #Проверка имени на корректность
-def check_name(name):
+def is_name(name):
     name = name.replace(" ", "")
     print(name)
     incorrect_symbols = re.search(r'[^а-яА-ЯёЁ]', name)
