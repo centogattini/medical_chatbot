@@ -94,7 +94,7 @@ class TelegramBot:
 			bot.send_message(message.from_user.id,'Выберите дату для записи', reply_markup=keyboard)
 			bot.register_next_step_handler(message, ask_dates)
 
-		def print_times(message):
+		def print_times(message, problem=False):
 			np_time = get_user_data(message.from_user.id, 'np_time')
 			tag = get_user_data(message.from_user.id, 'tag')
 			ans = get_user_data(message.from_user.id, 'ans')
@@ -129,7 +129,6 @@ class TelegramBot:
 				keyboard.add(btn1)
 			elif btn2:
 				keyboard.add(btn2)
-
 			keyboard.row(btn3)
 			self.bot.send_message(message.from_user.id,'Выберите время для записи', reply_markup=keyboard)
 			self.bot.register_next_step_handler(message, ask_times)
@@ -167,7 +166,7 @@ class TelegramBot:
 					profession=appointment[5], 
 					date=appointment[3], 
 					time=appointment[4]
-					) + '\n'
+					) + '\n\n'
 			btn1 = types.KeyboardButton(text="Удалить запись к врачу")
 			btn2 = types.KeyboardButton(text="Выход")
 			keyboard.row(btn1, btn2)
@@ -207,18 +206,27 @@ class TelegramBot:
 		def delete_appointment(message):
 			appointments = db.get_tickets(message.from_user.id)
 			appointments_ids = [appointment[-1] for appointment in appointments]
+
 			if message.text in appointments_ids:
 				db.delete_record(message.text)
-				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard= True)
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 				if len(appointments_ids) > 1:
 					btn0 = types.KeyboardButton(text='Отменить еще одну запись')
 					keyboard.add(btn0)
-				btn1 = types.KeyboardButton(text='Записaться к врачу')
+				btn1 = types.KeyboardButton(text='Записаться к врачу')
 				btn2 = types.KeyboardButton(text='Выход')
 				keyboard.row(btn1, btn2)
 				self.bot.send_message(message.from_user.id, 
-					f"Выберете действие",reply_markup=keyboard)
-				self.bot.register_next_step_handler(message, after_deletion)	
+					f"Выберите действие", reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, after_deletion)
+			else:
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+				
+				keyboard.add()
+				self.bot.send_message(message.from_user.id, 
+				f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, ask_to_delete)	
+
 		@self.bot.message_handler(commands=['text'])
 		def after_deletion(message):
 			if message.text == 'Выход':
@@ -229,7 +237,7 @@ class TelegramBot:
 				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
 					reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, start_message)	
-			elif message.text == "Записаться к врачу":
+			elif message.text == 'Записаться к врачу':
 				print_start(message)
 			elif message.text == "Отменить еще одну запись":
 				show_appointments(message)
@@ -244,6 +252,7 @@ class TelegramBot:
 				self.bot.send_message(message.from_user.id, 
 				f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, after_deletion)	
+
 		#обработка ответа на первое сообщение
 		@self.bot.message_handler(commands=['text'])
 		def ask_1(message):
@@ -338,7 +347,6 @@ class TelegramBot:
 									parse_mode='html')
 				set_user_data(message.from_user.id, 'ans', 'терапевт')
 				self.bot.register_next_step_handler(message, ask_3)
-
 				return 
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True, one_time_keyboard= True)
 			btn_yes = types.KeyboardButton(text="Да")
@@ -473,8 +481,8 @@ class TelegramBot:
 				tag = get_user_data(message.from_user.id,'tag')
 				ans = get_user_data(message.from_user.id,'ans')
 				if tag == 'prof':
-					times = db.get_time_by_profession(get_user_data(message.from_user.id,"picked_date"),ans.capitalize())
-					if not message.text in times:
+					times = db.get_time_by_profession(get_user_data(message.from_user.id,"picked_date"), ans.capitalize())
+					if message.text not in times:
 						self.bot.send_message(message.from_user.id,"Некорректное время, выберите еще раз ")
 						set_user_data(message.from_user.id,"page_time",0)
 						set_user_data(message.from_user.id,"np_time",0)
@@ -511,6 +519,10 @@ class TelegramBot:
 				self.bot.register_next_step_handler(message,changing_data)
 
 		@self.bot.message_handler(commands=['text'])
+		def reprint_time(message):
+			print_times(message,problem=True)
+
+		@self.bot.message_handler(commands=['text'])
 		def ask_number(message):
 			if not is_name(message.text):
 				self.bot.send_message(message.from_user.id, 'Данные введены некорректно! \n Введите свое ФИО')
@@ -545,14 +557,17 @@ class TelegramBot:
 			if message.text=='Данные верны':
 				self.bot.send_message(message.from_user.id,text="Введите свое ФИО")
 				self.bot.register_next_step_handler(message, ask_number)
+
 			elif message.text=='Изменить дату':
 				set_user_data(message.from_user.id,"page_date", 0)
 				set_user_data(message.from_user.id,"np_date", 0)	
 				print_dates(message)
+
 			elif message.text=='Изменить время':
 				set_user_data(message.from_user.id,"page_time", 0)
 				set_user_data(message.from_user.id,"np_time", 0)
 				print_times(message)
+
 			elif message.text == "Выход":
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 				btn = types.KeyboardButton(text="/start")
@@ -560,15 +575,21 @@ class TelegramBot:
 				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
 					reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, start_message)	
-				pass
-		
+				
+			else:
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
+				btn1 = types.KeyboardButton(f'Данные верны')
+				btn2 = types.KeyboardButton(f'Изменить дату')
+				btn3 = types.KeyboardButton(f'Изменить время')
+				btn4 = types.KeyboardButton(f'Выход')
+				keyboard.add(btn1, btn2, btn3, btn4)
+				self.bot.send_message(message.from_user.id, 
+					f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, changing_data)
+
 		def print_profs(message):
-			doc_list = db.get_all_doc_n_names()
-			docs = set()
-			for elem in doc_list:
-				docs.update([elem[0]])
+			docs = list(db.get_all_professions())
 			keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
-			docs = list(docs)
 			btns = []
 			for i in range(len(docs)):
 				btns.append(types.KeyboardButton(docs[i]))
