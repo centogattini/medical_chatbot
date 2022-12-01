@@ -236,13 +236,24 @@ class TelegramBot:
 				self.bot.send_message(message.from_user.id, 
 					f"Выберите действие", reply_markup=keyboard)
 				self.bot.register_next_step_handler(message, after_deletion)
-			else:
+			elif message.text == 'Выход':
 				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+				btn = types.KeyboardButton(text="/start")
+				keyboard.add(btn)
+				self.bot.send_message(message.from_user.id, "Чтобы записаться к врачу или посмотреть свои талоны нажмите кнопку /start", 
+					reply_markup=keyboard)
+				self.bot.register_next_step_handler(message, start_message)	
+			else:
+				appointments = self.db.get_tickets(message.from_user.id)
+				keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+				for i in range(len(appointments)):
+					btn = types.KeyboardButton(text=str(appointments[i][-1]))
+					keyboard.add(btn)
+				btn2 = types.KeyboardButton(text="Выход")
+				keyboard.add(btn2)
+				self.bot.send_message(message.from_user.id, "Выберите талон", reply_markup=keyboard, parse_mode="Markdown")
+				self.bot.register_next_step_handler(message, delete_appointment)	
 				
-				keyboard.add()
-				self.bot.send_message(message.from_user.id, 
-				f"Мы не распознали ваш ответ. Пожалуйста, воспользуйтесь кнопками",reply_markup=keyboard)
-				self.bot.register_next_step_handler(message, ask_to_delete)	
 
 		@self.bot.message_handler(commands=['text'])
 		def after_deletion(message):
@@ -320,7 +331,8 @@ class TelegramBot:
 			##обрабатываем входную строку
 			ans, tag = self.clf.identify_name_or_profession(message.text)
 			print(ans, tag)
-			set_user_data(message.from_user.id,'tag', tag)
+			
+			set_user_data(message.from_user.id,'tag', 'prof' if tag == 'autocorr' else tag)
 			set_user_data(message.from_user.id,'ans', ans)
 			#прописать соотвествующие тэги
 			#если не смогли обработать имя или профессию
@@ -381,10 +393,7 @@ class TelegramBot:
 		@self.bot.message_handler(commands=['text'])
 		def ask_5(message):
 			if message.text == "Нет":
-				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
-				btn1 = types.KeyboardButton('/start')
-				keyboard.add(btn1)
-				self.bot.send_message(message.from_user.id, 'До свидания!', reply_markup=keyboard)
+				bye_failed(message)
 			elif message.text == "Да":
 				print_dates(message)
 			else:
@@ -436,10 +445,7 @@ class TelegramBot:
 				set_user_data(message.from_user.id, 'ans', ans)
 				print_dates(message)
 			elif message.text == "Нет":
-				keyboard = types.ReplyKeyboardMarkup(resize_keyboard= True)
-				btn1 = types.KeyboardButton(f'/start')
-				keyboard.add(btn1)
-				self.bot.send_message(message.from_user.id,'До свидания!', reply_markup=keyboard)
+				bye_failed(message)
 			elif message.text == 'Выбрать врача самостоятельно':
 				print_profs(message)
 			else:
@@ -468,9 +474,12 @@ class TelegramBot:
 				tag = get_user_data(message.from_user.id,'tag')
 				ans = get_user_data(message.from_user.id,'ans')
 				if tag == 'prof':
+					print('prof')
 					dates = self.db.get_date_by_profession(ans.capitalize())
 				elif tag == 'name':
+					print('name')
 					dates = self.db.get_date_by_name(ans)
+				print(dates)
 				text = reformat_date(message.text)
 				if not text in dates:
 					self.bot.send_message(message.from_user.id,"Некорректная дата, выберите еще раз ")

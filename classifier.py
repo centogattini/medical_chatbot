@@ -10,13 +10,7 @@ from Levenshtein import distance
 class Classifier():
 
     def __init__(self, doctors_names: List[str], doctors_and_symsps: dict):
-        # JSON_PATH = "data/symptoms.json"
-        # try:
-        #     with open(JSON_PATH, encoding='utf-8') as f:
-        #         self.docs_and_symps = json.load(f)
-        # except FileNotFoundError:
-        #     print('Wrong path for symptoms.json')
-        #     raise 
+
         self.doctors_and_symps = doctors_and_symsps
         for key, val in self.doctors_and_symps.items():
             self.doctors_and_symps[key] = normalize_text(val, tokenizied=True)
