@@ -34,7 +34,7 @@ def format_date(date):
         '11':'ноября',
         '12':'декабря',
     }
-    return f'{d} {dct[m]}'
+    return f'{int(d)} {dct[m]}'
 
 def format_time(time):
     # Input: time in format "HH:MM:SS"
@@ -65,5 +65,36 @@ def is_name(name):
         return True
     else:
         return False
+
+def reformat_date(formated_date):
+    # Input: Date in format %n имя_месяца (в родительном падеже)
+    # Output: YYYY-MM-DD
+    from datetime import date
+    today = date.today()
+    today_year = int(today.year)
+    today_month = int(today.month)
+
+    dct = {
+        'января':'01',
+        'февраля':'02',
+        'марта':'03',
+        'апреля':'04',
+        'мая':'05',
+        'июня':'06',
+        'июля':'07',
+        'августа':'08',
+        'сентября':'09',
+        'октября':'10',
+        'ноября':'11',
+        'декабря':'12'
+    }
+
+    fday, fmonth = formated_date.split()
+    reformated_day = fday if int(fday) >= 10 else f"0{fday}"
+    reformated_month = dct[fmonth]
+    reformated_year = str(today_year) if (int(reformated_month) >= today_month) else str(today_year+1)
+    return f'{reformated_year}-{reformated_month}-{reformated_day}'
+    
+
 
     

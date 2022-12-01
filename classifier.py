@@ -19,10 +19,11 @@ class Classifier():
         #     raise 
         self.doctors_and_symps = doctors_and_symsps
         for key, val in self.doctors_and_symps.items():
-            self.doctors_and_symps[key] = normalize_text(val,tokenizied=True)
+            self.doctors_and_symps[key] = normalize_text(val, tokenizied=True)
 
         self.doctors_profs = list(self.doctors_and_symps.keys())
         self.doctors_name = doctors_names
+        self.doctors_name_norm = normalize_text(doctors_names, tokenizied=True)
         
 
     def classify_symptoms(self, text) -> str:
@@ -78,14 +79,19 @@ class Classifier():
                 [' '.join(ngram) for ngram in ngrams(tokens, 2)] + tokens
 
         nicknames = dict()
-        for full_name in self.doctors_name:
+        for i in range(len(self.doctors_name)):
+            full_name = self.doctors_name[i]
             nt = full_name.lower().split()
+            nt_norm = self.doctors_name_norm[i].lower().split()
             nicknames[nt[0]] = full_name
             nicknames[' '.join(nt[1:])] = full_name
 
+            nicknames[nt_norm[0]] = full_name
+            nicknames[' '.join(nt_norm[1:])] = full_name
+
         for w in all_grams:
             print(w)
-            if w in nicknames or w[:-1] in nicknames:
+            if w in nicknames or (w[:-1] in nicknames):
                 ans_name = nicknames[w]
                 break
         
