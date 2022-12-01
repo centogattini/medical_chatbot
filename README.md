@@ -32,3 +32,5 @@
 (base) petrovich@73 medical_chatbot % python main.py
 please, enter a bot's token:
 ```
+
+Предусмотрена функция **inner_usage.py** для преобразования итогового расписания для каждого врача в виде csv файла для внутреннего пользования.

@@ -49,7 +49,7 @@ def format_appointment(id, patient, doctor, profession, date, time):
 
 #Проверка номера на корректность 
 def is_number(number):
-    check_number = re.search(r'^(\+7|7|8)?[\s\-]?\(?[489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', number)
+    check_number = re.fullmatch(r'^(\+7|7|8)?[\s\-]?\(?[3489][0-9]{2}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$', number)
     if bool(check_number) == True:
         return True  
     else: 

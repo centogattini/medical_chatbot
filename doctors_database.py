@@ -9,8 +9,6 @@ class Database():
 
     def __init__(self, path):
         self.path = path
-        con = sqlite3.connect(self.path)
-        cur = con.cursor()
     
     #Получить время на выбранную дату по имени врача
     def get_available_time(self, name, date):
